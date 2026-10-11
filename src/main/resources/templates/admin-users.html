@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: common-head('Manage System Users | SmartNav Admin')}">
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="container-fluid px-lg-4 py-4 my-auto">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <span class="badge bg-warning text-dark fw-bold"><i class="fa-solid fa-shield-halved me-1"></i> Admin Console</span>
+                    <h2 class="fw-bold text-white mb-0">User &amp; Account Management</h2>
+                </div>
+                <p class="text-secondary small mb-0">Inspect driver accounts, contribution levels, login telemetry, and suspend fraudulent contributors.</p>
+            </div>
+            <a th:href="@{/admin/dashboard}" class="btn btn-secondary-smartnav">
+                <i class="fa-solid fa-gauge me-1"></i> Admin Dashboard
+            </a>
+        </div>
+
+        <div class="card-smartnav p-0 overflow-hidden shadow-lg">
+            <div class="table-responsive">
+                <table class="table table-dark table-hover mb-0 align-middle">
+                    <thead class="bg-surface text-secondary small text-uppercase">
+                        <tr>
+                            <th class="ps-4">User ID</th>
+                            <th>Driver Name</th>
+                            <th>Email Address</th>
+                            <th>Role</th>
+                            <th>Account Status</th>
+                            <th>Registration Date</th>
+                            <th>Last Login</th>
+                            <th>Reports</th>
+                            <th>Points &amp; Badge</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="u : ${users}">
+                            <td class="ps-4 fw-bold text-secondary" th:text="'#' + ${u.id}">#1</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="rounded-circle bg-surface border border-secondary text-white d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 0.8rem;" th:text="${#strings.substring(u.name, 0, 1)}">
+                                        A
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-white" th:text="${u.name}">System Admin</div>
+                                        <div class="text-secondary small" th:text="${u.phone ?: 'No phone'}">+91 00000 00000</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-secondary small" th:text="${u.email}">admin@smartnav.com</td>
+                            <td>
+                                <span class="badge" th:classappend="${u.role == 'ADMIN' ? 'bg-danger' : 'bg-primary'}" th:text="${u.role}">ADMIN</span>
+                            </td>
+                            <td>
+                                <span class="badge" th:classappend="${u.status == 'ACTIVE' ? 'badge-status-approved' : (u.status == 'SUSPENDED' ? 'badge-status-rejected' : 'bg-secondary')}" th:text="${u.status}">ACTIVE</span>
+                            </td>
+                            <td class="text-secondary small" th:text="${u.createdAt != null ? #temporals.format(u.createdAt, 'yyyy-MM-dd HH:mm') : '—'}">2026-09-27</td>
+                            <td class="text-secondary small" th:text="${u.lastLogin != null ? #temporals.format(u.lastLogin, 'yyyy-MM-dd HH:mm') : 'Never'}">Never</td>
+                            <td>
+                                <span class="badge bg-dark border border-secondary" th:text="${u.totalReports + ' submitted (' + u.approvedReports + ' approved)'}">0</span>
+                            </td>
+                            <td>
+                                <span class="fw-bold text-primary me-1" th:text="${u.points + ' pts'}">350 pts</span>
+                                <span class="badge" th:classappend="${u.badge == 'Platinum Sentinel' ? 'badge-rank-platinum' : (u.badge == 'Gold Pioneer' ? 'badge-rank-gold' : (u.badge == 'Silver Navigator' ? 'badge-rank-silver' : 'badge-rank-bronze'))}" th:text="${u.badge}">Tier</span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="d-inline-flex gap-1">
+                                    <!-- View User Details -->
+                                    <button class="btn btn-sm btn-outline-info btn-view-user" th:data-id="${u.id}" title="View Full User Details">
+                                        <i class="fa-solid fa-eye"></i>
+                                    </button>
+
+                                    <!-- View User Reports -->
+                                    <a th:href="@{/admin/reports}" class="btn btn-sm btn-outline-secondary" title="View Incident Reports">
+                                        <i class="fa-solid fa-map-pin"></i>
+                                    </a>
+
+                                    <!-- Suspend / Reactivate (Forbidden for Primary/Admin accounts) -->
+                                    <button th:if="${u.role != 'ADMIN' and u.id != 1}" 
+                                            class="btn btn-sm btn-toggle-user" 
+                                            th:classappend="${u.status == 'ACTIVE' ? 'btn-outline-warning' : 'btn-outline-success'}" 
+                                            th:data-id="${u.id}" 
+                                            th:data-status="${u.status}"
+                                            th:data-name="${u.name}"
+                                            th:title="${u.status == 'ACTIVE' ? 'Suspend User' : 'Reactivate User'}">
+                                        <i th:class="${u.status == 'ACTIVE' ? 'fa-solid fa-user-slash' : 'fa-solid fa-user-check'}"></i>
+                                    </button>
+
+                                    <span th:if="${u.role == 'ADMIN' or u.id == 1}" class="badge bg-secondary-subtle text-secondary small py-2 px-2" title="Primary Administrator cannot be modified">
+                                        <i class="fa-solid fa-shield-halved"></i> Protected
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- View User Details Modal -->
+    <div class="modal fade" id="userDetailsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content card-smartnav border-secondary">
+                <div class="modal-header border-secondary-subtle">
+                    <h5 class="modal-title text-white fw-bold d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-id-card text-info"></i> User Account Details
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <div class="rounded-circle bg-surface border border-secondary text-white d-flex align-items-center justify-content-center fw-bold fs-3 mx-auto mb-2" id="modalUserInitial" style="width: 64px; height: 64px;">
+                            U
+                        </div>
+                        <h4 class="fw-bold text-white mb-0" id="modalUserName">User Name</h4>
+                        <div class="text-secondary small" id="modalUserEmail">email@example.com</div>
+                    </div>
+                    <ul class="list-group list-group-flush small bg-transparent">
+                        <li class="list-group-item bg-transparent text-secondary d-flex justify-content-between">
+                            <span>User ID:</span> <strong class="text-white" id="modalUserId">#</strong>
+                        </li>
+                        <li class="list-group-item bg-transparent text-secondary d-flex justify-content-between">
+                            <span>Role:</span> <span class="badge" id="modalUserRole">USER</span>
+                        </li>
+                        <li class="list-group-item bg-transparent text-secondary d-flex justify-content-between">
+                            <span>Account Status:</span> <span class="badge" id="modalUserStatus">ACTIVE</span>
+                        </li>
+                        <li class="list-group-item bg-transparent text-secondary d-flex justify-content-between">
+                            <span>Phone:</span> <strong class="text-white" id="modalUserPhone">—</strong>
+                        </li>
+                        <li class="list-group-item bg-transparent text-secondary d-flex justify-content-between">
+                            <span>Points &amp; Badge:</span> <strong class="text-primary" id="modalUserPoints">0 pts (Bronze Scout)</strong>
+                        </li>
+                        <li class="list-group-item bg-transparent text-secondary d-flex justify-content-between">
+                            <span>Total Reports:</span> <strong class="text-white" id="modalUserReports">0 submitted (0 approved)</strong>
+                        </li>
+                        <li class="list-group-item bg-transparent text-secondary d-flex justify-content-between">
+                            <span>Registered On:</span> <strong class="text-white" id="modalUserCreated">—</strong>
+                        </li>
+                        <li class="list-group-item bg-transparent text-secondary d-flex justify-content-between">
+                            <span>Last Login:</span> <strong class="text-white" id="modalUserLastLogin">—</strong>
+                        </li>
+                    </ul>
+                </div>
+                <div class="modal-footer border-secondary-subtle">
+                    <button type="button" class="btn btn-secondary-smartnav" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <div th:replace="~{fragments/footer :: scripts}"></div>
+    <script th:src="@{/js/admin.js}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            AdminEngine.bindModerationButtons();
+        });
+    </script>
+</body>
+</html>

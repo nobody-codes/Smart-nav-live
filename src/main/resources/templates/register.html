@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: common-head('Create Driver Account | SmartNav')}">
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="container py-5 my-auto">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card-smartnav p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <img th:src="@{/images/logo.svg}" alt="SmartNav" height="38" class="mb-3">
+                        <h3 class="fw-bold text-white mb-1">Create Driver Account</h3>
+                        <p class="text-secondary small">Join the community mapping network &amp; intelligent route guidance</p>
+                    </div>
+
+                    <div id="registerAlert" class="alert alert-danger d-none py-2 px-3 small mb-3"></div>
+
+                    <form id="registerForm" novalidate>
+                        <div class="row g-3 mb-3">
+                            <!-- Full Name -->
+                            <div class="col-12">
+                                <label class="form-label text-secondary small fw-bold" for="regName">Full Name</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-surface border-secondary-subtle text-secondary"><i class="fa-solid fa-user"></i></span>
+                                    <input type="text" id="regName" class="form-control form-control-smartnav" required minlength="2" placeholder="e.g. Alex Turner" autocomplete="name">
+                                </div>
+                                <div class="invalid-feedback d-none" id="nameFeedback">Full name must be at least 2 characters.</div>
+                            </div>
+
+                            <!-- Email Address -->
+                            <div class="col-12">
+                                <label class="form-label text-secondary small fw-bold" for="regEmail">Email Address</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-surface border-secondary-subtle text-secondary"><i class="fa-solid fa-envelope"></i></span>
+                                    <input type="email" id="regEmail" class="form-control form-control-smartnav" required placeholder="name@example.com" autocomplete="email">
+                                </div>
+                                <div class="invalid-feedback d-none" id="emailFeedback">Please provide a valid email address.</div>
+                            </div>
+
+                            <!-- Phone Number (Optional) -->
+                            <div class="col-12">
+                                <label class="form-label text-secondary small fw-bold" for="regPhone">Phone Number <span class="text-muted fw-normal">(Optional)</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-surface border-secondary-subtle text-secondary"><i class="fa-solid fa-phone"></i></span>
+                                    <input type="tel" id="regPhone" class="form-control form-control-smartnav" placeholder="+91 98220 01100" autocomplete="tel">
+                                </div>
+                            </div>
+
+                            <!-- Password -->
+                            <div class="col-md-6">
+                                <label class="form-label text-secondary small fw-bold" for="regPassword">Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-surface border-secondary-subtle text-secondary"><i class="fa-solid fa-lock"></i></span>
+                                    <input type="password" id="regPassword" class="form-control form-control-smartnav" required minlength="8" placeholder="••••••••" autocomplete="new-password">
+                                    <button type="button" class="btn btn-secondary-smartnav px-2" id="toggleRegPassword" title="Show/Hide">
+                                        <i class="fa-regular fa-eye" id="toggleRegIcon"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Confirm Password -->
+                            <div class="col-md-6">
+                                <label class="form-label text-secondary small fw-bold" for="regConfirmPassword">Confirm Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-surface border-secondary-subtle text-secondary"><i class="fa-solid fa-check-double"></i></span>
+                                    <input type="password" id="regConfirmPassword" class="form-control form-control-smartnav" required minlength="8" placeholder="••••••••" autocomplete="new-password">
+                                    <button type="button" class="btn btn-secondary-smartnav px-2" id="toggleConfirmPassword" title="Show/Hide">
+                                        <i class="fa-regular fa-eye" id="toggleConfirmIcon"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Password Strength Indicator Checklist -->
+                            <div class="col-12">
+                                <div class="p-3 rounded bg-surface border border-secondary-subtle small text-secondary">
+                                    <div class="fw-bold mb-2 text-white" style="font-size: 0.78rem;">Password Requirements:</div>
+                                    <div class="d-flex flex-wrap gap-2" style="font-size: 0.74rem;">
+                                        <span id="reqLength" class="badge bg-dark border border-secondary text-secondary"><i class="fa-solid fa-circle-xmark me-1 text-danger"></i> 8+ Characters</span>
+                                        <span id="reqUpper" class="badge bg-dark border border-secondary text-secondary"><i class="fa-solid fa-circle-xmark me-1 text-danger"></i> Uppercase Letter</span>
+                                        <span id="reqLower" class="badge bg-dark border border-secondary text-secondary"><i class="fa-solid fa-circle-xmark me-1 text-danger"></i> Lowercase Letter</span>
+                                        <span id="reqNumber" class="badge bg-dark border border-secondary text-secondary"><i class="fa-solid fa-circle-xmark me-1 text-danger"></i> Number (0-9)</span>
+                                        <span id="reqSpecial" class="badge bg-dark border border-secondary text-secondary"><i class="fa-solid fa-circle-xmark me-1 text-danger"></i> Special Character</span>
+                                    </div>
+                                    <div id="passwordMatchStatus" class="mt-2 small fw-bold text-danger d-none">
+                                        <i class="fa-solid fa-triangle-exclamation me-1"></i> Passwords do not match.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Accept Terms Checkbox -->
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="regTerms" required>
+                                    <label class="form-check-label text-secondary small" for="regTerms">
+                                        I accept the <a th:href="@{/about}" class="text-primary text-decoration-none">Terms of Service</a> and Community Incident Reporting Guidelines.
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="btnRegisterSubmit" class="btn btn-primary-smartnav w-100 py-2 mb-3 fw-bold">
+                            <i class="fa-solid fa-user-plus me-2"></i> Register Account
+                        </button>
+                    </form>
+
+                    <div class="text-center text-secondary small pt-2 border-top border-secondary-subtle">
+                        Already have an account? 
+                        <a th:href="@{/login}" class="text-primary fw-semibold text-decoration-none">Sign in here</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <div th:replace="~{fragments/footer :: scripts}"></div>
+
+    <script>
+        // Password Show/Hide
+        function setupToggle(btnId, inputId, iconId) {
+            const btn = document.getElementById(btnId);
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (btn && input) {
+                btn.addEventListener('click', () => {
+                    const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+                    input.setAttribute('type', type);
+                    icon.className = type === 'password' ? 'fa-regular fa-eye' : 'fa-regular fa-eye-slash text-primary';
+                });
+            }
+        }
+        setupToggle('toggleRegPassword', 'regPassword', 'toggleRegIcon');
+        setupToggle('toggleConfirmPassword', 'regConfirmPassword', 'toggleConfirmIcon');
+
+        // Real-time Password Strength Check
+        const passInput = document.getElementById('regPassword');
+        const confirmInput = document.getElementById('regConfirmPassword');
+        const matchStatus = document.getElementById('passwordMatchStatus');
+
+        function updateChecklistItem(id, isValid) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            if (isValid) {
+                el.className = 'badge bg-success-subtle border border-success text-success';
+                el.querySelector('i').className = 'fa-solid fa-circle-check me-1 text-success';
+            } else {
+                el.className = 'badge bg-dark border border-secondary text-secondary';
+                el.querySelector('i').className = 'fa-solid fa-circle-xmark me-1 text-danger';
+            }
+        }
+
+        function evaluatePassword() {
+            const val = passInput.value;
+            const hasLen = val.length >= 8;
+            const hasUp = /[A-Z]/.test(val);
+            const hasLow = /[a-z]/.test(val);
+            const hasNum = /[0-9]/.test(val);
+            const hasSpec = /[^A-Za-z0-9]/.test(val);
+
+            updateChecklistItem('reqLength', hasLen);
+            updateChecklistItem('reqUpper', hasUp);
+            updateChecklistItem('reqLower', hasLow);
+            updateChecklistItem('reqNumber', hasNum);
+            updateChecklistItem('reqSpecial', hasSpec);
+
+            if (confirmInput.value.length > 0) {
+                if (val !== confirmInput.value) {
+                    matchStatus.classList.remove('d-none');
+                } else {
+                    matchStatus.classList.add('d-none');
+                }
+            } else {
+                matchStatus.classList.add('d-none');
+            }
+
+            return hasLen && hasUp && hasLow && hasNum && hasSpec;
+        }
+
+        passInput.addEventListener('input', evaluatePassword);
+        confirmInput.addEventListener('input', evaluatePassword);
+
+        // Form Submit
+        document.getElementById('registerForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const alertBox = document.getElementById('registerAlert');
+            const submitBtn = document.getElementById('btnRegisterSubmit');
+
+            alertBox.classList.add('d-none');
+            alertBox.textContent = '';
+
+            const name = document.getElementById('regName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+            const password = passInput.value;
+            const confirmPassword = confirmInput.value;
+            const acceptTerms = document.getElementById('regTerms').checked;
+
+            if (name.length < 2) {
+                alertBox.textContent = 'Name must be at least 2 characters.';
+                alertBox.classList.remove('d-none');
+                return;
+            }
+
+            if (!email || !email.includes('@')) {
+                alertBox.textContent = 'Please provide a valid email address.';
+                alertBox.classList.remove('d-none');
+                return;
+            }
+
+            if (password.length < 8) {
+                alertBox.textContent = 'Password must contain at least 8 characters.';
+                alertBox.classList.remove('d-none');
+                return;
+            }
+
+            if (!evaluatePassword()) {
+                alertBox.textContent = 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.';
+                alertBox.classList.remove('d-none');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                alertBox.textContent = 'Passwords do not match.';
+                alertBox.classList.remove('d-none');
+                return;
+            }
+
+            if (!acceptTerms) {
+                alertBox.textContent = 'Please accept the Terms of Service to continue.';
+                alertBox.classList.remove('d-none');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Creating Account...';
+
+            fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: name,
+                    email: email,
+                    phone: phone,
+                    password: password,
+                    confirmPassword: confirmPassword,
+                    acceptTerms: acceptTerms
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/login?registered=true';
+                } else {
+                    alertBox.textContent = data.message || 'Registration failed. Please verify your details.';
+                    alertBox.classList.remove('d-none');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fa-solid fa-user-plus me-2"></i> Register Account';
+                }
+            })
+            .catch(err => {
+                alertBox.textContent = 'A network error occurred. Please try again.';
+                alertBox.classList.remove('d-none');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-user-plus me-2"></i> Register Account';
+            });
+        });
+    </script>
+</body>
+</html>

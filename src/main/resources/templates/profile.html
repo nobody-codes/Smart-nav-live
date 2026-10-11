@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: common-head('Driver Profile & Account Settings')}">
+</head>
+<body>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="container py-5">
+        <!-- Page Header -->
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary-subtle">
+            <div>
+                <h2 class="fw-bold text-white mb-1">
+                    <i class="fa-solid fa-id-badge text-primary me-2"></i> Account Profile & Security
+                </h2>
+                <p class="text-secondary mb-0">View your verified credentials, reputation stats, and manage security settings.</p>
+            </div>
+            <div class="mt-2 mt-md-0">
+                <a th:href="@{/dashboard}" class="btn btn-secondary-smartnav btn-sm">
+                    <i class="fa-solid fa-arrow-left me-1"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Left: Profile Summary Card -->
+            <div class="col-lg-4">
+                <div class="card-smartnav p-4 text-center mb-4">
+                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fs-1 fw-bold mx-auto mb-3 shadow" style="width: 88px; height: 88px; border: 3px solid rgba(14,165,233,0.3);">
+                        <span id="avatarInitial" th:text="${profile != null and profile.name != null and !profile.name.isEmpty() ? #strings.substring(profile.name, 0, 1) : 'U'}">U</span>
+                    </div>
+
+                    <h4 class="fw-bold text-white mb-1" id="profileCardName" th:text="${profile != null ? profile.name : 'User'}">User Name</h4>
+                    <div class="text-secondary small mb-3" th:text="${profile != null ? profile.email : 'user@smartnav.com'}">email@example.com</div>
+
+                    <!-- Role & Status Badges -->
+                    <div class="d-flex justify-content-center gap-2 mb-3">
+                        <span class="badge" th:classappend="${profile != null and profile.role == 'ADMIN' ? 'bg-danger' : 'bg-primary'}" th:text="${profile != null ? profile.role : 'USER'}">USER</span>
+                        <span class="badge" th:classappend="${profile != null and profile.status == 'ACTIVE' ? 'bg-success' : (profile != null and profile.status == 'SUSPENDED' ? 'bg-warning text-dark' : 'bg-secondary')}" th:text="${profile != null ? profile.status : 'ACTIVE'}">ACTIVE</span>
+                    </div>
+
+                    <!-- Gamification Badge -->
+                    <div class="mb-4">
+                        <span class="badge fs-6 px-3 py-2" th:classappend="${profile != null and profile.badge == 'Platinum Sentinel' ? 'badge-rank-platinum' : (profile != null and profile.badge == 'Gold Pioneer' ? 'badge-rank-gold' : (profile != null and profile.badge == 'Silver Navigator' ? 'badge-rank-silver' : 'badge-rank-bronze'))}" th:text="${profile != null ? profile.badge : 'Bronze Scout'}">Bronze Scout</span>
+                    </div>
+
+                    <!-- Statistics Grid -->
+                    <div class="row g-2 text-center pt-3 border-top border-secondary-subtle">
+                        <div class="col-4">
+                            <div class="p-2 rounded bg-surface border border-secondary-subtle">
+                                <div class="fs-4 fw-bold text-primary" th:text="${profile != null ? profile.points : '0'}">0</div>
+                                <div class="text-secondary small" style="font-size: 0.72rem;">Points</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-2 rounded bg-surface border border-secondary-subtle">
+                                <div class="fs-4 fw-bold text-warning" th:text="${profile != null ? profile.totalReports : '0'}">0</div>
+                                <div class="text-secondary small" style="font-size: 0.72rem;">Submitted</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-2 rounded bg-surface border border-secondary-subtle">
+                                <div class="fs-4 fw-bold text-success" th:text="${profile != null ? profile.approvedReports : '0'}">0</div>
+                                <div class="text-secondary small" style="font-size: 0.72rem;">Approved</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Metadata Details -->
+                <div class="card-smartnav p-4">
+                    <h6 class="fw-bold text-white mb-3">
+                        <i class="fa-solid fa-circle-info text-info me-2"></i> Account Information
+                    </h6>
+                    <ul class="list-unstyled mb-0 small">
+                        <li class="d-flex justify-content-between py-2 border-bottom border-secondary-subtle">
+                            <span class="text-secondary">Phone Number</span>
+                            <span class="text-white fw-semibold" id="profileCardPhone" th:text="${profile != null and profile.phone != null and !profile.phone.isEmpty() ? profile.phone : 'Not Set'}">Not Set</span>
+                        </li>
+                        <li class="d-flex justify-content-between py-2 border-bottom border-secondary-subtle">
+                            <span class="text-secondary">Account Created</span>
+                            <span class="text-white fw-semibold" th:text="${profile != null and profile.createdAt != null ? #temporals.format(profile.createdAt, 'dd MMM yyyy, HH:mm') : 'N/A'}">01 Jan 2026</span>
+                        </li>
+                        <li class="d-flex justify-content-between py-2 border-bottom border-secondary-subtle">
+                            <span class="text-secondary">Last Login</span>
+                            <span class="text-white fw-semibold" th:text="${profile != null and profile.lastLogin != null ? #temporals.format(profile.lastLogin, 'dd MMM yyyy, HH:mm') : 'Never'}">Active Session</span>
+                        </li>
+                        <li class="d-flex justify-content-between py-2">
+                            <span class="text-secondary">Account Status</span>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle" th:text="${profile != null ? profile.status : 'ACTIVE'}">ACTIVE</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Right: Edit Profile & Password Settings -->
+            <div class="col-lg-8">
+                <div class="card-smartnav p-4 p-md-5">
+                    <h4 class="fw-bold text-white mb-2">Edit Profile Details</h4>
+                    <p class="text-secondary small mb-4">Update your personal contact details or change your account security credentials.</p>
+                    
+                    <div id="profileAlert" class="alert d-none py-2 small mb-4" role="alert"></div>
+
+                    <form id="editProfileForm" novalidate>
+                        <!-- Basic Info Section -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label text-secondary small fw-semibold">Full Name *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-surface border-secondary-subtle text-secondary">
+                                        <i class="fa-solid fa-user"></i>
+                                    </span>
+                                    <input type="text" id="profName" class="form-control form-control-smartnav" required th:value="${profile != null ? profile.name : ''}" placeholder="Your full name">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-secondary small fw-semibold">Email (Fixed Account Identifier)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-surface border-secondary-subtle text-secondary">
+                                        <i class="fa-solid fa-envelope"></i>
+                                    </span>
+                                    <input type="email" class="form-control form-control-smartnav" readonly th:value="${profile != null ? profile.email : ''}" style="opacity: 0.7; cursor: not-allowed;">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-secondary small fw-semibold">Phone Number (Optional)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-surface border-secondary-subtle text-secondary">
+                                        <i class="fa-solid fa-phone"></i>
+                                    </span>
+                                    <input type="tel" id="profPhone" class="form-control form-control-smartnav" th:value="${profile != null ? profile.phone : ''}" placeholder="+91 98765 43210">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-secondary small fw-semibold">Assigned Role</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-surface border-secondary-subtle text-secondary">
+                                        <i class="fa-solid fa-shield"></i>
+                                    </span>
+                                    <input type="text" class="form-control form-control-smartnav" readonly th:value="${profile != null ? profile.role : 'USER'}" style="opacity: 0.7; cursor: not-allowed;">
+                                </div>
+                                <div class="form-text text-secondary" style="font-size: 0.75rem;">Roles are strictly governed by system administrators.</div>
+                            </div>
+                        </div>
+
+                        <!-- Security & Password Section -->
+                        <h5 class="fw-bold text-white mb-2 pt-3 border-top border-secondary-subtle">
+                            <i class="fa-solid fa-lock text-warning me-2"></i> Security & Password Update
+                        </h5>
+                        <p class="text-secondary small mb-3">Leave these fields blank if you do not wish to change your current password.</p>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-12">
+                                <label class="form-label text-secondary small fw-semibold">Current Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-surface border-secondary-subtle text-secondary">
+                                        <i class="fa-solid fa-key"></i>
+                                    </span>
+                                    <input type="password" id="currentPassword" class="form-control form-control-smartnav" placeholder="Required only if changing password">
+                                    <button class="btn btn-outline-secondary border-secondary-subtle" type="button" onclick="togglePassVisibility('currentPassword', 'eyeCurrent')">
+                                        <i class="fa-solid fa-eye" id="eyeCurrent"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-secondary small fw-semibold">New Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-surface border-secondary-subtle text-secondary">
+                                        <i class="fa-solid fa-lock"></i>
+                                    </span>
+                                    <input type="password" id="newPassword" class="form-control form-control-smartnav" placeholder="Min. 8 characters">
+                                    <button class="btn btn-outline-secondary border-secondary-subtle" type="button" onclick="togglePassVisibility('newPassword', 'eyeNew')">
+                                        <i class="fa-solid fa-eye" id="eyeNew"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-secondary small fw-semibold">Confirm New Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-surface border-secondary-subtle text-secondary">
+                                        <i class="fa-solid fa-check-double"></i>
+                                    </span>
+                                    <input type="password" id="confirmNewPassword" class="form-control form-control-smartnav" placeholder="Confirm new password">
+                                    <button class="btn btn-outline-secondary border-secondary-subtle" type="button" onclick="togglePassVisibility('confirmNewPassword', 'eyeConfirm')">
+                                        <i class="fa-solid fa-eye" id="eyeConfirm"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Password Strength Requirements Checklist -->
+                        <div id="passwordRequirements" class="p-3 rounded bg-surface border border-secondary-subtle mb-4 d-none">
+                            <div class="small fw-semibold text-white mb-2">New Password Requirements:</div>
+                            <div class="row g-2 small">
+                                <div class="col-sm-6 text-secondary" id="reqLength"><i class="fa-regular fa-circle me-1"></i> At least 8 characters</div>
+                                <div class="col-sm-6 text-secondary" id="reqUpper"><i class="fa-regular fa-circle me-1"></i> 1 uppercase letter</div>
+                                <div class="col-sm-6 text-secondary" id="reqLower"><i class="fa-regular fa-circle me-1"></i> 1 lowercase letter</div>
+                                <div class="col-sm-6 text-secondary" id="reqNumber"><i class="fa-regular fa-circle me-1"></i> 1 digit number</div>
+                                <div class="col-sm-6 text-secondary" id="reqSpecial"><i class="fa-regular fa-circle me-1"></i> 1 special character (!@#$%^&*)</div>
+                                <div class="col-sm-6 text-secondary" id="reqMatch"><i class="fa-regular fa-circle me-1"></i> Passwords match</div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" id="btnSaveProfile" class="btn btn-primary-smartnav px-4 py-2">
+                                <i class="fa-solid fa-floppy-disk me-2"></i> Save Profile Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <div th:replace="~{fragments/footer :: scripts}"></div>
+
+    <script>
+        function togglePassVisibility(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        const newPassInput = document.getElementById('newPassword');
+        const confirmPassInput = document.getElementById('confirmNewPassword');
+        const reqBox = document.getElementById('passwordRequirements');
+
+        newPassInput.addEventListener('input', checkComplexity);
+        confirmPassInput.addEventListener('input', checkComplexity);
+
+        function checkComplexity() {
+            const val = newPassInput.value;
+            const confirmVal = confirmPassInput.value;
+
+            if (val.length > 0 || confirmVal.length > 0) {
+                reqBox.classList.remove('d-none');
+            } else {
+                reqBox.classList.add('d-none');
+                return;
+            }
+
+            updateRule('reqLength', val.length >= 8);
+            updateRule('reqUpper', /[A-Z]/.test(val));
+            updateRule('reqLower', /[a-z]/.test(val));
+            updateRule('reqNumber', /[0-9]/.test(val));
+            updateRule('reqSpecial', /[^a-zA-Z0-9]/.test(val));
+            updateRule('reqMatch', val.length > 0 && val === confirmVal);
+        }
+
+        function updateRule(elementId, isValid) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            if (isValid) {
+                el.className = 'col-sm-6 text-success';
+                el.innerHTML = `<i class="fa-solid fa-circle-check me-1"></i> ${el.innerText.trim()}`;
+            } else {
+                el.className = 'col-sm-6 text-secondary';
+                el.innerHTML = `<i class="fa-regular fa-circle me-1"></i> ${el.innerText.trim()}`;
+            }
+        }
+
+        document.getElementById('editProfileForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const alertBox = document.getElementById('profileAlert');
+            const saveBtn = document.getElementById('btnSaveProfile');
+            
+            const name = document.getElementById('profName').value.trim();
+            const phone = document.getElementById('profPhone').value.trim();
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+
+            if (!name) {
+                showAlert('Full name is required.', 'danger');
+                return;
+            }
+
+            if (newPassword || confirmNewPassword) {
+                if (!currentPassword) {
+                    showAlert('Current password is required to set a new password.', 'danger');
+                    return;
+                }
+                if (newPassword !== confirmNewPassword) {
+                    showAlert('New password and confirm password do not match.', 'danger');
+                    return;
+                }
+                if (newPassword.length < 8 || !/[A-Z]/.test(newPassword) || !/[a-z]/.test(newPassword) || !/[0-9]/.test(newPassword) || !/[^a-zA-Z0-9]/.test(newPassword)) {
+                    showAlert('New password does not meet complexity requirements.', 'danger');
+                    return;
+                }
+            }
+
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Saving...';
+
+            const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
+
+            const headers = { 'Content-Type': 'application/json' };
+            if (csrfToken && csrfHeader) {
+                headers[csrfHeader] = csrfToken;
+            }
+
+            try {
+                const response = await fetch('/api/auth/profile', {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({
+                        name: name,
+                        phone: phone,
+                        currentPassword: currentPassword,
+                        newPassword: newPassword,
+                        confirmNewPassword: confirmNewPassword
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    showAlert('Profile updated successfully!', 'success');
+                    document.getElementById('profileCardName').textContent = name;
+                    document.getElementById('profileCardPhone').textContent = phone || 'Not Set';
+                    document.getElementById('avatarInitial').textContent = name.substring(0, 1).toUpperCase();
+                    // Clear password fields
+                    document.getElementById('currentPassword').value = '';
+                    document.getElementById('newPassword').value = '';
+                    document.getElementById('confirmNewPassword').value = '';
+                    reqBox.classList.add('d-none');
+                } else {
+                    showAlert(data.message || 'Failed to update profile. Please verify your details.', 'danger');
+                }
+            } catch (err) {
+                showAlert('An unexpected network error occurred. Please try again.', 'danger');
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk me-2"></i> Save Profile Changes';
+            }
+        });
+
+        function showAlert(message, type) {
+            const alertBox = document.getElementById('profileAlert');
+            alertBox.className = `alert alert-${type} py-2 small mb-4`;
+            alertBox.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'} me-2"></i> ${message}`;
+            alertBox.classList.remove('d-none');
+            alertBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    </script>
+</body>
+</html>

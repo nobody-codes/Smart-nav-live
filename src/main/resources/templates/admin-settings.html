@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: common-head('System Settings & Parameters')}">
+</head>
+<body>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card-smartnav p-4 p-md-5">
+                    <div class="mb-4 pb-3 border-bottom border-secondary-subtle">
+                        <span class="badge bg-primary-subtle text-primary px-3 py-1 rounded-pill fw-bold mb-2">SYSTEM CONTROL</span>
+                        <h2 class="fw-bold text-white mb-1">Navigation & Telemetry Parameters</h2>
+                        <p class="text-secondary small mb-0">Fine-tune routing algorithms, moderation thresholds, and alert radii.</p>
+                    </div>
+
+                    <div id="settingsAlert" class="alert alert-success d-none py-2 small mb-3"></div>
+
+                    <form id="settingsForm">
+                        <div class="d-flex flex-column gap-4">
+                            <!-- Setting 1 -->
+                            <div class="p-3 rounded bg-surface border border-secondary-subtle d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="text-white fw-bold">Auto-Approve Community Reports</div>
+                                    <div class="text-secondary small">Automatically publish reports directly to the live map without manual moderation</div>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="autoApproveToggle">
+                                </div>
+                            </div>
+
+                            <!-- Setting 2 -->
+                            <div class="p-3 rounded bg-surface border border-secondary-subtle">
+                                <label class="form-label text-white fw-bold">Congestion Penalty Factor (Time Multiplier)</label>
+                                <div class="text-secondary small mb-2">Weight added to estimated travel duration when navigating through traffic jams (Current: 1.8x)</div>
+                                <input type="number" step="0.1" min="1.0" max="5.0" id="congestionFactor" class="form-control form-control-smartnav" value="1.8">
+                            </div>
+
+                            <!-- Setting 3 -->
+                            <div class="p-3 rounded bg-surface border border-secondary-subtle">
+                                <label class="form-label text-white fw-bold">Default Proximity Alert Radius (Kilometers)</label>
+                                <div class="text-secondary small mb-2">Distance threshold around driver GPS coordinates for high-priority hazard push notifications</div>
+                                <input type="number" step="0.5" min="1.0" max="25.0" id="alertRadius" class="form-control form-control-smartnav" value="5.0">
+                            </div>
+
+                            <!-- Setting 4 -->
+                            <div class="p-3 rounded bg-surface border border-secondary-subtle">
+                                <label class="form-label text-white fw-bold">Maximum Submissions Per Driver Per Day</label>
+                                <div class="text-secondary small mb-2">Anti-spam rate limit per user account</div>
+                                <input type="number" min="1" max="100" id="maxReports" class="form-control form-control-smartnav" value="20">
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top border-secondary-subtle">
+                            <button type="submit" id="btnSaveSettings" class="btn btn-primary-smartnav px-4 py-2">
+                                <i class="fa-solid fa-floppy-disk me-2"></i> Save Parameters
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <div th:replace="~{fragments/footer :: scripts}"></div>
+
+    <script>
+        document.getElementById('settingsForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const alertBox = document.getElementById('settingsAlert');
+            const btn = document.getElementById('btnSaveSettings');
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Updating...';
+
+            setTimeout(() => {
+                alertBox.innerHTML = '<i class="fa-solid fa-circle-check me-2"></i>System settings updated successfully across routing cluster.';
+                alertBox.classList.remove('d-none');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-floppy-disk me-2"></i> Save Parameters';
+            }, 600);
+        });
+    </script>
+</body>
+</html>

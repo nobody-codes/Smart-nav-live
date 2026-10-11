@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: common-head('About Project & Navigation Architecture')}">
+</head>
+<body>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="container py-5">
+        <!-- Title Header -->
+        <div class="text-center max-w-2xl mx-auto mb-5">
+            <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-bold mb-2">FINAL YEAR PROJECT</span>
+            <h1 class="display-5 fw-bold text-white mb-3">Real-Time Crowdsourced Mapping & Intelligent Navigation</h1>
+            <p class="text-secondary fs-5">
+                A modern distributed web engineering platform combining crowdsourced telemetry, OpenStreetMap routing, bidirectional WebSockets, and dynamic road hazard avoidance algorithms.
+            </p>
+        </div>
+
+        <!-- 3 Role System Breakdown -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="card-smartnav p-4 h-100 border-info">
+                    <div class="stat-icon-wrapper bg-secondary-light text-info mb-3">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <h4 class="fw-bold mb-2">1. Driver / User Role</h4>
+                    <p class="text-secondary small mb-3">
+                        Registered community drivers who navigate routes and crowdsource ground-truth road observations.
+                    </p>
+                    <ul class="text-secondary small ps-3 mb-0">
+                        <li>Report hazards (Accidents, Roadblocks, Traffic Jams, Floods, etc.)</li>
+                        <li>Upload scene photos and geotagged coordinates</li>
+                        <li>Plan intelligent shortest routes avoiding roadblocks</li>
+                        <li>Earn contribution points and unlock tiered badges</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card-smartnav p-4 h-100 border-warning">
+                    <div class="stat-icon-wrapper text-warning mb-3" style="background: rgba(245, 158, 11, 0.15);">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h4 class="fw-bold mb-2">2. Administrator Role</h4>
+                    <p class="text-secondary small mb-3">
+                        Municipal traffic moderators ensuring system integrity and real-time hazard verification.
+                    </p>
+                    <ul class="text-secondary small ps-3 mb-0">
+                        <li>Review pending crowdsourced reports</li>
+                        <li>Approve valid hazards (triggers instant live broadcast & +10 pts)</li>
+                        <li>Reject or purge fraudulent reports</li>
+                        <li>Monitor Chart.js telemetry dashboards & export data</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card-smartnav p-4 h-100 border-success">
+                    <div class="stat-icon-wrapper bg-primary-light text-success mb-3">
+                        <i class="fa-solid fa-eye"></i>
+                    </div>
+                    <h4 class="fw-bold mb-2">3. Guest (View-Only)</h4>
+                    <p class="text-secondary small mb-3">
+                        Casual travelers seeking quick situational awareness without requiring registration.
+                    </p>
+                    <ul class="text-secondary small ps-3 mb-0">
+                        <li>View live OpenStreetMap with clustered incident pins</li>
+                        <li>Filter incidents by category and address</li>
+                        <li>Inspect public traffic alerts in real time</li>
+                        <li>Read-only access ensuring privacy and safety</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Intelligent Routing Logic Section -->
+        <div class="card-smartnav p-4 p-lg-5 mb-5">
+            <div class="row align-items-center g-4">
+                <div class="col-lg-7">
+                    <span class="badge bg-success-subtle text-success px-3 py-1 rounded-pill fw-bold mb-2">ALGORITHM DEEP DIVE</span>
+                    <h2 class="fw-bold mb-3">How `NavigationService` Computes Intelligent Routes</h2>
+                    <p class="text-secondary leading-relaxed">
+                        Conventional routing engines often route motorists straight into road closures until severe delays occur. SmartNav employs a multi-stage intelligent routing pipeline:
+                    </p>
+                    <div class="d-flex flex-column gap-3 mt-3">
+                        <div class="d-flex gap-3">
+                            <div class="text-primary fs-5"><i class="fa-solid fa-circle-1"></i></div>
+                            <div>
+                                <h6 class="text-white fw-bold mb-1">Obstacle Detection Along Corridor</h6>
+                                <p class="text-secondary small mb-0">Calculates an elliptical corridor around the line connecting start and destination to identify any approved roadblock, flood, construction, or accident within the road path.</p>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-3">
+                            <div class="text-warning fs-5"><i class="fa-solid fa-circle-2"></i></div>
+                            <div>
+                                <h6 class="text-white fw-bold mb-1">Dynamic Bypass Waypoint Synthesis</h6>
+                                <p class="text-secondary small mb-0">Generates perpendicular bypass detour coordinates around active roadblocks, allowing OpenStreetMap routing to navigate safely around impassable sections.</p>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-3">
+                            <div class="text-danger fs-5"><i class="fa-solid fa-circle-3"></i></div>
+                            <div>
+                                <h6 class="text-white fw-bold mb-1">Congestion Weight Penalties & Red-Line Highlighting</h6>
+                                <p class="text-secondary small mb-0">Applies a configurable congestion penalty factor (1.8x) to estimated duration and highlights high-traffic segments with a bright red polyline on the driver's screen.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="bg-surface p-4 rounded-3 border border-secondary-subtle">
+                        <h6 class="fw-bold text-white mb-3"><i class="fa-solid fa-code text-primary me-2"></i>Technology Highlights</h6>
+                        <div class="d-flex flex-column gap-2 small">
+                            <div class="d-flex justify-content-between py-1 border-bottom border-secondary-subtle">
+                                <span class="text-secondary">Backend Framework</span>
+                                <span class="text-light fw-semibold">Java 17 / Spring Boot 3.3</span>
+                            </div>
+                            <div class="d-flex justify-content-between py-1 border-bottom border-secondary-subtle">
+                                <span class="text-secondary">Real-Time Messaging</span>
+                                <span class="text-light fw-semibold">Spring WebSocket (STOMP/SockJS)</span>
+                            </div>
+                            <div class="d-flex justify-content-between py-1 border-bottom border-secondary-subtle">
+                                <span class="text-secondary">Mapping & Routing</span>
+                                <span class="text-light fw-semibold">Leaflet.js + OpenStreetMap</span>
+                            </div>
+                            <div class="d-flex justify-content-between py-1 border-bottom border-secondary-subtle">
+                                <span class="text-secondary">Persistence & ORM</span>
+                                <span class="text-light fw-semibold">Spring Data JPA + MySQL / H2</span>
+                            </div>
+                            <div class="d-flex justify-content-between py-1 border-bottom border-secondary-subtle">
+                                <span class="text-secondary">Security & Auth</span>
+                                <span class="text-light fw-semibold">Spring Security 6 (BCrypt)</span>
+                            </div>
+                            <div class="d-flex justify-content-between py-1">
+                                <span class="text-secondary">Frontend Engine</span>
+                                <span class="text-light fw-semibold">Bootstrap 5, Chart.js, HTML5</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call to Action -->
+        <div class="text-center py-3">
+            <a th:href="@{/map}" class="btn btn-primary-smartnav px-4 py-3 me-2">
+                <i class="fa-solid fa-map-location-dot me-2"></i> Try Live Map
+            </a>
+            <a th:href="@{/routes}" class="btn btn-secondary-smartnav px-4 py-3">
+                <i class="fa-solid fa-route me-2"></i> Test Route Planner
+            </a>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <div th:replace="~{fragments/footer :: scripts}"></div>
+</body>
+</html>

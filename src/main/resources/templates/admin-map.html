@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: common-head('Dedicated Admin Incident Map & Verification Command Center')}">
+</head>
+<body style="overflow-x: hidden;">
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="container-fluid px-lg-4 py-3">
+        <!-- Admin Map Control Bar -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3 pb-2 border-bottom border-secondary-subtle">
+            <div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-danger-subtle text-danger fw-bold">ADMINISTRATIVE SPATIAL COMMAND</span>
+                    <span class="text-secondary small">&bull;</span>
+                    <span class="text-success small d-flex align-items-center gap-1">
+                        <i class="fa-solid fa-circle pulse-emerald" style="font-size: 8px;"></i> Live WebSocket Telemetry
+                    </span>
+                </div>
+                <h3 class="fw-bold text-white mb-0 mt-1">Dedicated Admin Incident Map & Verification Center</h3>
+                <p class="text-secondary small mb-0">Inspect real-world coordinates, review user submissions, and verify crowdsourced hazards before public release.</p>
+            </div>
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+                <a th:href="@{/admin/dashboard}" class="btn btn-secondary-smartnav btn-sm">
+                    <i class="fa-solid fa-gauge me-1"></i> Dashboard
+                </a>
+                <a th:href="@{/admin/reports}" class="btn btn-secondary-smartnav btn-sm">
+                    <i class="fa-solid fa-list-check me-1"></i> Reports Table
+                </a>
+                <button id="btnRefreshAdminMap" class="btn btn-primary-smartnav btn-sm">
+                    <i class="fa-solid fa-arrows-rotate me-1"></i> Refresh Map
+                </button>
+            </div>
+        </div>
+
+        <!-- Telemetry Metrics Strip -->
+        <div class="row g-2 mb-3">
+            <div class="col-6 col-md-3">
+                <div class="p-2 rounded bg-surface border border-secondary-subtle d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-secondary small">Total Seeded & Reported</div>
+                        <div id="statTotal" class="fs-5 fw-bold text-white">0</div>
+                    </div>
+                    <i class="fa-solid fa-database text-info fs-4"></i>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-2 rounded bg-surface border border-warning-subtle d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-warning small fw-bold">Pending Review</div>
+                        <div id="statPending" class="fs-5 fw-bold text-warning">0</div>
+                    </div>
+                    <i class="fa-solid fa-clock text-warning fs-4"></i>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-2 rounded bg-surface border border-success-subtle d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-success small fw-bold">Approved / Public</div>
+                        <div id="statApproved" class="fs-5 fw-bold text-success">0</div>
+                    </div>
+                    <i class="fa-solid fa-circle-check text-success fs-4"></i>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-2 rounded bg-surface border border-danger-subtle d-flex align-items-center justify-content-between">
+                    <div>
+                        <div class="text-danger small">Rejected / Spam</div>
+                        <div id="statRejected" class="fs-5 fw-bold text-danger">0</div>
+                    </div>
+                    <i class="fa-solid fa-circle-xmark text-danger fs-4"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- City Quick-Jump & Filter Strip -->
+        <div class="card-smartnav p-2 mb-3">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <!-- Indian Cities Quick Navigation -->
+                <div class="d-flex flex-wrap align-items-center gap-1">
+                    <span class="text-secondary small fw-bold me-1"><i class="fa-solid fa-location-crosshairs text-primary me-1"></i>Focus:</span>
+                    <button type="button" class="btn btn-sm btn-outline-info city-focus-btn active" data-lat="18.5204" data-lng="73.8567" data-zoom="13">Pune</button>
+                    <button type="button" class="btn btn-sm btn-outline-info city-focus-btn" data-lat="19.0760" data-lng="72.8777" data-zoom="13">Mumbai</button>
+                    <button type="button" class="btn btn-sm btn-outline-info city-focus-btn" data-lat="12.9716" data-lng="77.5946" data-zoom="13">Bengaluru</button>
+                    <button type="button" class="btn btn-sm btn-outline-info city-focus-btn" data-lat="28.6139" data-lng="77.2090" data-zoom="13">Delhi</button>
+                    <button type="button" class="btn btn-sm btn-outline-info city-focus-btn" data-lat="17.3850" data-lng="78.4867" data-zoom="13">Hyderabad</button>
+                    <button type="button" class="btn btn-sm btn-outline-info city-focus-btn" data-lat="13.0827" data-lng="80.2707" data-zoom="13">Chennai</button>
+                    <button type="button" class="btn btn-sm btn-outline-info city-focus-btn" data-lat="19.9975" data-lng="73.7898" data-zoom="13">Nashik</button>
+                    <button type="button" class="btn btn-sm btn-outline-info city-focus-btn" data-lat="21.1458" data-lng="79.0882" data-zoom="13">Nagpur</button>
+                </div>
+
+                <!-- Status Filter Pills -->
+                <div class="d-flex align-items-center gap-1">
+                    <span class="text-secondary small fw-bold me-1">Status:</span>
+                    <button type="button" class="btn btn-sm btn-outline-light status-filter-btn active" data-status="ALL">All</button>
+                    <button type="button" class="btn btn-sm btn-outline-warning status-filter-btn" data-status="PENDING">
+                        <i class="fa-solid fa-clock me-1"></i> Pending
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-success status-filter-btn" data-status="APPROVED">
+                        <i class="fa-solid fa-check me-1"></i> Approved
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-danger status-filter-btn" data-status="REJECTED">
+                        <i class="fa-solid fa-xmark me-1"></i> Rejected
+                    </button>
+                </div>
+            </div>
+
+            <!-- Category Filter Strip -->
+            <div class="d-flex flex-wrap align-items-center gap-1 mt-2 pt-2 border-top border-secondary-subtle">
+                <span class="text-secondary small fw-bold me-1">Category:</span>
+                <button type="button" class="btn btn-sm filter-pill active py-0 px-2" data-category="ALL" style="font-size: 0.75rem;">All</button>
+                <button type="button" class="btn btn-sm filter-pill py-0 px-2" data-category="ACCIDENT" style="font-size: 0.75rem;">🚗 Accidents</button>
+                <button type="button" class="btn btn-sm filter-pill py-0 px-2" data-category="TRAFFIC_JAM" style="font-size: 0.75rem;">🚦 Traffic Jams</button>
+                <button type="button" class="btn btn-sm filter-pill py-0 px-2" data-category="ROAD_BLOCK" style="font-size: 0.75rem;">🚫 Roadblocks</button>
+                <button type="button" class="btn btn-sm filter-pill py-0 px-2" data-category="CONSTRUCTION" style="font-size: 0.75rem;">🚧 Construction</button>
+                <button type="button" class="btn btn-sm filter-pill py-0 px-2" data-category="POTHOLE" style="font-size: 0.75rem;">🕳️ Potholes</button>
+                <button type="button" class="btn btn-sm filter-pill py-0 px-2" data-category="FLOOD" style="font-size: 0.75rem;">🌊 Flooding</button>
+                <button type="button" class="btn btn-sm filter-pill py-0 px-2" data-category="BROKEN_SIGNAL" style="font-size: 0.75rem;">⚡ Signals</button>
+                <button type="button" class="btn btn-sm filter-pill py-0 px-2" data-category="VEHICLE_BREAKDOWN" style="font-size: 0.75rem;">🚛 Breakdown</button>
+                <button type="button" class="btn btn-sm filter-pill py-0 px-2" data-category="FIRE" style="font-size: 0.75rem;">🔥 Fire</button>
+                <button type="button" class="btn btn-sm filter-pill py-0 px-2" data-category="POLICE_CHECKPOINT" style="font-size: 0.75rem;">👮 Police</button>
+            </div>
+        </div>
+
+        <!-- Fullscreen Admin Map Card -->
+        <div class="card-smartnav p-2 position-relative" style="min-height: 680px;">
+            <div id="adminFullMap" style="height: 100%; min-height: 670px; border-radius: 10px;"></div>
+
+            <!-- Legend Overlay -->
+            <div class="position-absolute bottom-0 start-0 m-3 p-2 rounded bg-surface border border-secondary-subtle small d-flex flex-wrap gap-3 z-3 text-secondary" style="background: rgba(15,23,42,0.92); backdrop-filter: blur(10px);">
+                <span class="d-flex align-items-center gap-1 text-warning"><i class="fa-solid fa-circle text-warning"></i> Pending Review</span>
+                <span class="d-flex align-items-center gap-1 text-success"><i class="fa-solid fa-circle text-success"></i> Approved (Live on Public Map)</span>
+                <span class="d-flex align-items-center gap-1 text-danger"><i class="fa-solid fa-circle text-danger"></i> Rejected (Spam / Resolved)</span>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <div th:replace="~{fragments/footer :: scripts}"></div>
+
+    <script>
+        const AdminMapEngine = {
+            map: null,
+            markersLayer: null,
+            allReports: [],
+            currentStatusFilter: 'ALL',
+            currentCategoryFilter: 'ALL',
+
+            categoryIcons: {
+                ACCIDENT: { icon: 'fa-car-burst', bg: '#ef4444' },
+                TRAFFIC_JAM: { icon: 'fa-traffic-light', bg: '#f59e0b' },
+                ROAD_BLOCK: { icon: 'fa-ban', bg: '#dc2626' },
+                CONSTRUCTION: { icon: 'fa-person-digging', bg: '#ea580c' },
+                POTHOLE: { icon: 'fa-road-circle-exclamation', bg: '#854d0e' },
+                FLOOD: { icon: 'fa-water', bg: '#0284c7' },
+                BROKEN_SIGNAL: { icon: 'fa-triangle-exclamation', bg: '#eab308' },
+                VEHICLE_BREAKDOWN: { icon: 'fa-truck-pickup', bg: '#7c3aed' },
+                FIRE: { icon: 'fa-fire', bg: '#b91c1c' },
+                POLICE_CHECKPOINT: { icon: 'fa-shield-halved', bg: '#2563eb' },
+                OTHER: { icon: 'fa-circle-exclamation', bg: '#64748b' }
+            },
+
+            init: function () {
+                this.map = L.map('adminFullMap', { zoomControl: false }).setView([18.5204, 73.8567], 13);
+
+                const osmStandard = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap contributors',
+                    maxZoom: 19
+                });
+
+                const cartoVoyager = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; OpenStreetMap &copy; CARTO',
+                    subdomains: 'abcd',
+                    maxZoom: 19
+                });
+
+                const cartoDark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; OpenStreetMap &copy; CARTO',
+                    subdomains: 'abcd',
+                    maxZoom: 19
+                });
+
+                cartoVoyager.addTo(this.map);
+
+                const baseMaps = {
+                    "🗺️ OpenStreetMap": osmStandard,
+                    "🏙️ Voyager": cartoVoyager,
+                    "🌙 Dark Mode": cartoDark
+                };
+
+                L.control.layers(baseMaps, null, { position: 'topright' }).addTo(this.map);
+                L.control.zoom({ position: 'bottomright' }).addTo(this.map);
+
+                this.markersLayer = L.layerGroup().addTo(this.map);
+
+                this.bindEvents();
+                this.fetchReports();
+
+                // Live updates via WebSocket
+                if (window.SmartNav) {
+                    SmartNav.registerReportListener(event => {
+                        this.fetchReports();
+                    });
+                }
+            },
+
+            fetchReports: function () {
+                fetch('/api/reports')
+                    .then(res => res.json())
+                    .then(res => {
+                        if (res.success && res.data) {
+                            this.allReports = res.data;
+                            this.updateMetrics();
+                            this.renderMarkers();
+                        }
+                    })
+                    .catch(err => console.error('Error fetching admin reports', err));
+            },
+
+            updateMetrics: function () {
+                const total = this.allReports.length;
+                const pending = this.allReports.filter(r => r.status === 'PENDING').length;
+                const approved = this.allReports.filter(r => r.status === 'APPROVED').length;
+                const rejected = this.allReports.filter(r => r.status === 'REJECTED').length;
+
+                document.getElementById('statTotal').textContent = total;
+                document.getElementById('statPending').textContent = pending;
+                document.getElementById('statApproved').textContent = approved;
+                document.getElementById('statRejected').textContent = rejected;
+            },
+
+            renderMarkers: function () {
+                this.markersLayer.clearLayers();
+
+                const filtered = this.allReports.filter(r => {
+                    const statusMatch = this.currentStatusFilter === 'ALL' || r.status === this.currentStatusFilter;
+                    const catMatch = this.currentCategoryFilter === 'ALL' || r.category === this.currentCategoryFilter;
+                    return statusMatch && catMatch;
+                });
+
+                filtered.forEach(report => {
+                    const config = this.categoryIcons[report.category] || this.categoryIcons.OTHER;
+                    
+                    let statusHalo = '#10b981'; // Approved
+                    let statusBadgeClass = 'badge bg-success';
+                    if (report.status === 'PENDING') {
+                        statusHalo = '#f59e0b';
+                        statusBadgeClass = 'badge bg-warning text-dark pulse-emerald';
+                    } else if (report.status === 'REJECTED') {
+                        statusHalo = '#ef4444';
+                        statusBadgeClass = 'badge bg-danger';
+                    }
+
+                    const markerHtml = `
+                        <div class="custom-incident-pin" style="background:${config.bg}; border: 3px solid ${statusHalo}; box-shadow: 0 0 10px ${statusHalo};">
+                            <i class="fa-solid ${config.icon} text-white"></i>
+                        </div>
+                    `;
+
+                    const icon = L.divIcon({
+                        html: markerHtml,
+                        className: 'admin-marker-pin',
+                        iconSize: [36, 36],
+                        iconAnchor: [18, 18],
+                        popupAnchor: [0, -20]
+                    });
+
+                    const marker = L.marker([report.latitude, report.longitude], { icon: icon });
+
+                    const popupContent = `
+                        <div class="p-2" style="min-width: 270px; max-width: 330px; font-family: 'Inter', sans-serif;">
+                            <div class="d-flex justify-content-between align-items-center mb-2 pb-1 border-bottom border-secondary-subtle">
+                                <span class="fw-bold text-white small">${report.category.replace('_', ' ')}</span>
+                                <span class="${statusBadgeClass}" id="popupBadge_${report.id}">${report.status}</span>
+                            </div>
+                            <div class="text-light small mb-2">${report.description || 'No description provided'}</div>
+                            
+                            <div class="bg-surface p-2 rounded small text-secondary mb-2" style="background: rgba(30,41,59,0.9); font-size: 0.75rem;">
+                                <div><i class="fa-solid fa-map-pin text-primary me-1"></i><b>Address:</b> ${report.address || 'Unknown'}</div>
+                                <div><i class="fa-solid fa-city text-info me-1"></i><b>City:</b> ${report.city || 'Pune'}, ${report.state || 'Maharashtra'}</div>
+                                <div><i class="fa-solid fa-crosshairs text-success me-1"></i><b>Coords:</b> ${report.latitude.toFixed(6)}, ${report.longitude.toFixed(6)}</div>
+                                <div><i class="fa-solid fa-user text-warning me-1"></i><b>Reporter:</b> ${report.userName || 'Anonymous'}</div>
+                                <div><i class="fa-solid fa-clock text-light me-1"></i><b>Submitted:</b> ${report.createdAt ? new Date(report.createdAt).toLocaleString() : 'Recent'}</div>
+                            </div>
+
+                            ${report.imageUrl ? `<div class="mb-2"><img src="${report.imageUrl}" class="img-fluid rounded" style="max-height: 120px; width: 100%; object-fit: cover;"></div>` : ''}
+
+                            <div class="d-flex gap-1 mt-2 pt-2 border-top border-secondary-subtle">
+                                ${report.status !== 'APPROVED' ? `
+                                    <button class="btn btn-sm btn-success flex-grow-1" onclick="AdminMapEngine.moderateReport(${report.id}, 'approve')">
+                                        <i class="fa-solid fa-check me-1"></i> Approve
+                                    </button>
+                                ` : ''}
+                                ${report.status !== 'REJECTED' ? `
+                                    <button class="btn btn-sm btn-warning flex-grow-1" onclick="AdminMapEngine.moderateReport(${report.id}, 'reject')">
+                                        <i class="fa-solid fa-xmark me-1"></i> Reject
+                                    </button>
+                                ` : ''}
+                                <button class="btn btn-sm btn-outline-danger" onclick="AdminMapEngine.deleteReport(${report.id})" title="Delete">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+
+                    marker.bindPopup(popupContent);
+                    this.markersLayer.addLayer(marker);
+                });
+            },
+
+            moderateReport: function (id, action) {
+                const endpoint = `/api/admin/incidents/${id}/${action}`;
+                fetch(endpoint, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.success) {
+                        SmartNav.showToast({
+                            title: `Report #${id} ${action === 'approve' ? 'Approved' : 'Rejected'}`,
+                            message: `Incident status updated and broadcasted to public map.`,
+                            type: action === 'approve' ? 'success' : 'warning'
+                        });
+                        this.fetchReports();
+                        this.map.closePopup();
+                    } else {
+                        alert('Operation failed: ' + res.message);
+                    }
+                })
+                .catch(err => console.error(err));
+            },
+
+            deleteReport: function (id) {
+                if (!confirm(`Are you sure you want to permanently delete incident report #${id}?`)) return;
+
+                fetch(`/api/incidents/${id}`, {
+                    method: 'DELETE'
+                })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.success) {
+                        SmartNav.showToast({
+                            title: `Report #${id} Deleted`,
+                            message: `Incident removed from real-world telemetry map.`,
+                            type: 'info'
+                        });
+                        this.fetchReports();
+                        this.map.closePopup();
+                    } else {
+                        alert('Delete failed: ' + res.message);
+                    }
+                })
+                .catch(err => console.error(err));
+            },
+
+            bindEvents: function () {
+                document.getElementById('btnRefreshAdminMap')?.addEventListener('click', () => {
+                    this.fetchReports();
+                    SmartNav.showToast({ title: 'Admin Map', message: 'Reloaded all telemetry incidents.', type: 'info' });
+                });
+
+                // City Focus Buttons
+                document.querySelectorAll('.city-focus-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.city-focus-btn').forEach(b => b.classList.remove('active'));
+                        e.currentTarget.classList.add('active');
+                        const lat = parseFloat(e.currentTarget.dataset.lat);
+                        const lng = parseFloat(e.currentTarget.dataset.lng);
+                        const zoom = parseInt(e.currentTarget.dataset.zoom) || 13;
+                        this.map.flyTo([lat, lng], zoom, { duration: 1.2 });
+                    });
+                });
+
+                // Status Filter Buttons
+                document.querySelectorAll('.status-filter-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.status-filter-btn').forEach(b => b.classList.remove('active'));
+                        e.currentTarget.classList.add('active');
+                        this.currentStatusFilter = e.currentTarget.dataset.status;
+                        this.renderMarkers();
+                    });
+                });
+
+                // Category Filter Pills
+                document.querySelectorAll('.filter-pill').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        document.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
+                        e.currentTarget.classList.add('active');
+                        this.currentCategoryFilter = e.currentTarget.dataset.category;
+                        this.renderMarkers();
+                    });
+                });
+            }
+        };
+
+        window.AdminMapEngine = AdminMapEngine;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            AdminMapEngine.init();
+        });
+    </script>
+</body>
+</html>

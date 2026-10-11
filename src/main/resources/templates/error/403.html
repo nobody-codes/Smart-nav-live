@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: common-head('Access Forbidden (403)')}">
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="container my-auto py-5 text-center">
+        <div class="card-smartnav p-5 mx-auto" style="max-width: 580px; border-color: rgba(239, 68, 68, 0.3);">
+            <div class="display-1 fw-bold text-danger mb-2">403</div>
+            <div class="stat-icon-wrapper rounded-circle mx-auto mb-3 text-danger" style="width: 76px; height: 76px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3);">
+                <i class="fa-solid fa-shield-halved fs-2"></i>
+            </div>
+            <h3 class="fw-bold text-white mb-2" th:text="${errorTitle != null ? errorTitle : 'Access Denied'}">403 Forbidden</h3>
+            <p class="text-secondary mb-4" th:text="${errorMessage != null ? errorMessage : 'Administrative privileges are required to access this area. Your current account does not have authorization.'}">
+                Administrative privileges are required to access this portal.
+            </p>
+            <div class="d-flex flex-wrap justify-content-center gap-3">
+                <a th:href="@{/dashboard}" class="btn btn-secondary-smartnav">
+                    <i class="fa-solid fa-gauge me-1"></i> User Dashboard
+                </a>
+                <a th:href="@{/admin/login}" class="btn btn-outline-danger">
+                    <i class="fa-solid fa-lock me-1"></i> Admin Sign In
+                </a>
+                <a th:href="@{/map}" class="btn btn-primary-smartnav">
+                    <i class="fa-solid fa-map-location-dot me-1"></i> Live Map
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <div th:replace="~{fragments/footer :: scripts}"></div>
+</body>
+</html>

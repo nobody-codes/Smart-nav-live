@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: common-head('Intelligent Route Planner & Dynamic Hazard Avoidance')}">
+</head>
+<body style="overflow-x: hidden;">
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="container-fluid px-lg-4 py-3">
+        <!-- Live Dynamic Recalculation Notification Banner -->
+        <div id="recalculateAlert" class="alert alert-warning py-2 mb-3 d-none d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-triangle-exclamation fs-5"></i>
+                <span><strong>Live Traffic Alert:</strong> A new incident was reported along metropolitan routes. Recalculate to verify detour status?</span>
+            </div>
+            <button id="btnRecalculate" class="btn btn-sm btn-dark">
+                <i class="fa-solid fa-arrows-rotate me-1"></i> Recalculate Now
+            </button>
+        </div>
+
+        <div class="row g-3">
+            <!-- Left Side Control Panel: Route Options & Instructions -->
+            <div class="col-lg-4 col-xl-3">
+                <div class="card-smartnav p-3 mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold text-white mb-0 d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-route text-primary"></i> Route Planner
+                        </h5>
+                        <span class="badge bg-primary-subtle text-primary small">AI Nav Engine</span>
+                    </div>
+
+                    <!-- Preset Route Selector -->
+                    <div class="mb-3">
+                        <label class="form-label text-secondary small fw-bold">Real-World Route Presets</label>
+                        <select id="presetSelect" class="form-select form-select-smartnav">
+                            <option value="pune_station_hinjewadi" selected>Pune: Railway Station ➜ Hinjewadi Phase 1</option>
+                            <option value="pune_swargate_airport">Pune: Swargate ➜ Viman Nagar (Airport)</option>
+                            <option value="mumbai_airport_bkc">Mumbai: Airport (T2) ➜ Bandra Kurla Complex (BKC)</option>
+                            <option value="bengaluru_majestic_silkboard">Bengaluru: KSR Majestic ➜ Silk Board Junction</option>
+                            <option value="delhi_cp_indiagate">Delhi: Connaught Place ➜ India Gate</option>
+                        </select>
+                    </div>
+
+                    <!-- Origin / Start Point -->
+                    <div class="mb-3 position-relative">
+                        <label class="form-label text-secondary small fw-bold">Start Origin (Search or Pick)</label>
+                        <div class="input-group mb-1">
+                            <span class="input-group-text bg-surface border-secondary-subtle text-success"><i class="fa-solid fa-play"></i></span>
+                            <input type="text" id="sourceName" class="form-control form-control-smartnav" value="Pune Junction Railway Station" placeholder="Type city or place name..." autocomplete="off">
+                            <button id="pickSourceBtn" class="btn btn-secondary-smartnav" type="button" title="Pick point on map">
+                                <i class="fa-solid fa-crosshairs"></i>
+                            </button>
+                        </div>
+                        <div id="sourceAutocomplete" class="autocomplete-dropdown d-none"></div>
+                        <div class="d-flex gap-2">
+                            <input type="number" step="0.0001" id="sourceLat" class="form-control form-control-smartnav py-1 small" value="18.5289" style="font-size: 0.75rem;">
+                            <input type="number" step="0.0001" id="sourceLng" class="form-control form-control-smartnav py-1 small" value="73.8744" style="font-size: 0.75rem;">
+                        </div>
+                    </div>
+
+                    <!-- Destination Point -->
+                    <div class="mb-3 position-relative">
+                        <label class="form-label text-secondary small fw-bold">Destination (Search or Pick)</label>
+                        <div class="input-group mb-1">
+                            <span class="input-group-text bg-surface border-secondary-subtle text-primary"><i class="fa-solid fa-flag-checkered"></i></span>
+                            <input type="text" id="destName" class="form-control form-control-smartnav" value="Hinjewadi Phase 1, Pune" placeholder="Type city or place name..." autocomplete="off">
+                            <button id="pickDestBtn" class="btn btn-secondary-smartnav" type="button" title="Pick point on map">
+                                <i class="fa-solid fa-crosshairs"></i>
+                            </button>
+                        </div>
+                        <div id="destAutocomplete" class="autocomplete-dropdown d-none"></div>
+                        <div class="d-flex gap-2">
+                            <input type="number" step="0.0001" id="destLat" class="form-control form-control-smartnav py-1 small" value="18.5913" style="font-size: 0.75rem;">
+                            <input type="number" step="0.0001" id="destLng" class="form-control form-control-smartnav py-1 small" value="73.7389" style="font-size: 0.75rem;">
+                        </div>
+                    </div>
+
+                    <!-- Avoidance Toggles -->
+                    <div class="p-3 rounded bg-surface border border-secondary-subtle mb-3">
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="avoidBlockedToggle" checked>
+                            <label class="form-check-label text-white small fw-bold" for="avoidBlockedToggle">
+                                Avoid Blocked Roads
+                            </label>
+                            <div class="text-secondary" style="font-size: 0.7rem;">Automatically detours around verified roadblocks, accidents & flooding.</div>
+                        </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="preferCongestedToggle" checked>
+                            <label class="form-check-label text-white small fw-bold" for="preferCongestedToggle">
+                                Dynamic Traffic Delays
+                            </label>
+                            <div class="text-secondary" style="font-size: 0.7rem;">Calculates incident delays for congested road corridors.</div>
+                        </div>
+                    </div>
+
+                    <button id="btnCalculateRoute" class="btn btn-primary-smartnav w-100 py-2 mb-2">
+                        <i class="fa-solid fa-route me-2"></i> Calculate Route
+                    </button>
+                    <button id="btnSaveRoute" class="btn btn-secondary-smartnav w-100 py-2" th:if="${isAuthenticated}">
+                        <i class="fa-solid fa-bookmark me-2 text-warning"></i> Save Route
+                    </button>
+                </div>
+
+                <!-- Calculated Route Trip Statistics -->
+                <div id="routeStatsCard" class="card-smartnav p-3 mb-3 d-none">
+                    <h6 class="fw-bold text-white mb-2 d-flex justify-content-between align-items-center">
+                        <span>Trip Overview</span>
+                        <div class="d-flex gap-1" id="routeBadges">
+                            <span id="delayNotice" class="d-none"></span>
+                            <span id="detourNotice" class="d-none"></span>
+                        </div>
+                    </h6>
+
+                    <!-- Incident Warning Banner -->
+                    <div id="routeWarningBanner" class="alert alert-danger py-2 px-2 mb-2 small d-none">
+                        <i class="fa-solid fa-triangle-exclamation me-1"></i> <span id="routeWarningText"></span>
+                    </div>
+
+                    <!-- Alternative Detour Route Card -->
+                    <div id="altRouteCard" class="p-2 mb-2 rounded bg-surface border border-success-subtle small d-none">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="text-success fw-bold"><i class="fa-solid fa-shield-halved me-1"></i> Alternative Detour</span>
+                            <span class="badge bg-success-subtle text-success" id="altBadge">Clear Route</span>
+                        </div>
+                        <div class="d-flex justify-content-between text-secondary">
+                            <span id="altDistance">0.0 km</span>
+                            <span id="altDuration">0 mins</span>
+                        </div>
+                        <div class="text-white-50 mt-1" style="font-size: 0.72rem;" id="altSummary"></div>
+                    </div>
+
+                    <div class="row g-2 text-center mb-3">
+                        <div class="col-6">
+                            <div class="p-2 rounded bg-surface border border-secondary-subtle">
+                                <div class="text-secondary small">Total Distance</div>
+                                <div id="totalDistance" class="fs-4 fw-bold text-primary">0.0 km</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-2 rounded bg-surface border border-secondary-subtle">
+                                <div class="text-secondary small">Travel Time</div>
+                                <div id="totalDuration" class="fs-4 fw-bold text-info">0 mins</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Driving Simulation Controls -->
+                    <div class="border-top border-secondary-subtle pt-3 mt-3">
+                        <button id="btnStartSimulation" class="btn btn-primary-smartnav w-100 py-2 mb-2">
+                            <i class="fa-solid fa-car-side me-2"></i> Start Live Drive Simulation
+                        </button>
+                        <button id="btnStopSimulation" class="btn btn-danger w-100 py-2 mb-2 d-none">
+                            <i class="fa-solid fa-stop me-2"></i> Stop Drive Simulation
+                        </button>
+                        <div class="form-check form-switch mb-1">
+                            <input class="form-check-input" type="checkbox" id="gpsDeviceToggle">
+                            <label class="form-check-label text-secondary small" for="gpsDeviceToggle">
+                                Follow Real Device GPS (Live)
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Step-by-Step Turn Directions -->
+                    <label class="form-label text-secondary small fw-bold mb-2 mt-2">Navigation Instructions</label>
+                    <div id="routeStepsList" style="max-height: 200px; overflow-y: auto;">
+                        <!-- Injected via routes.js -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Interactive Navigation Map -->
+            <div class="col-lg-8 col-xl-9">
+                <div class="card-smartnav p-2 h-100 position-relative" style="min-height: 600px;">
+                    <!-- Live Driving Simulation Heads-Up Display (HUD) -->
+                    <div id="simulationHud" class="nav-simulation-hud d-none">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="hud-speedometer">
+                                    <span id="hudSpeed" class="hud-speed-value text-primary">45</span>
+                                    <span class="hud-speed-unit">km/h</span>
+                                </div>
+                                <div class="vr bg-secondary mx-1"></div>
+                                <div>
+                                    <div id="hudInstruction" class="fw-bold text-white small text-truncate" style="max-width: 220px;">
+                                        <i class="fa-solid fa-arrow-turn-up text-info me-1"></i> Proceed on Route
+                                    </div>
+                                    <div class="text-secondary" style="font-size: 0.72rem;">
+                                        <span id="hudDistanceLeft">1.2 km</span> &bull; <span id="hudDurationLeft">3 min</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-success-subtle text-success small pulse-emerald px-2 py-1">LIVE NAV</span>
+                                <button type="button" class="btn-close btn-close-white btn-sm" id="btnHudClose" title="Hide HUD"></button>
+                            </div>
+                        </div>
+                        <!-- Proximity Hazard Warning Banner -->
+                        <div id="hudHazardAlert" class="alert alert-danger py-1 px-2 mb-0 small d-none pulse-red d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                            <span id="hudHazardMsg" class="fw-bold">Warning: Hazard ahead!</span>
+                        </div>
+                    </div>
+
+                    <!-- Visual Legend Overlay -->
+                    <div class="position-absolute bottom-0 start-0 m-3 p-2 rounded bg-surface border border-secondary-subtle small d-flex flex-wrap gap-3 z-3 text-secondary" style="background: rgba(15,23,42,0.92); backdrop-filter: blur(10px);">
+                        <span class="d-flex align-items-center gap-1 text-light"><span style="width: 16px; height: 5px; background: #06b6d4; display: inline-block; border-radius: 3px;"></span> Optimal Route</span>
+                        <span class="d-flex align-items-center gap-1 text-light"><span style="width: 16px; height: 5px; background: #10b981; display: inline-block; border-radius: 3px;"></span> Alternative Detour</span>
+                        <span class="d-flex align-items-center gap-1 text-light"><span style="width: 16px; height: 5px; background: #ef4444; display: inline-block; border-radius: 3px;"></span> Congestion Jam</span>
+                        <span class="d-flex align-items-center gap-1 text-light"><i class="fa-solid fa-ban text-danger"></i> Roadblock Avoided</span>
+                        <span class="d-flex align-items-center gap-1 text-light"><i class="fa-solid fa-car-side text-info"></i> Vehicle Position</span>
+                    </div>
+
+                    <div id="routeMap" style="min-height: 620px; height: 620px; width: 100%; border-radius: 10px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <div th:replace="~{fragments/footer :: scripts}"></div>
+    <script th:src="@{/js/routes.js}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            RouteEngine.init('routeMap');
+        });
+    </script>
+</body>
+</html>

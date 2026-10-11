@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: common-head('Internal Server Error (500)')}">
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="container my-auto py-5 text-center">
+        <div class="card-smartnav p-5 mx-auto" style="max-width: 580px;">
+            <div class="display-1 fw-bold text-danger mb-2">500</div>
+            <div class="stat-icon-wrapper rounded-circle mx-auto mb-3 text-danger" style="width: 72px; height: 72px; background: rgba(239, 68, 68, 0.15);">
+                <i class="fa-solid fa-triangle-exclamation fs-2"></i>
+            </div>
+            <h3 class="fw-bold text-white mb-2" th:text="${errorTitle != null ? errorTitle : 'Navigation Server Interruption'}">Server Error</h3>
+            <p class="text-secondary mb-4" th:text="${errorMessage != null ? errorMessage : 'The navigation subsystem encountered an unexpected condition. Telemetry logs have been captured.'}">
+                An unexpected server condition occurred.
+            </p>
+            <div class="d-flex justify-content-center gap-3">
+                <a th:href="@{/}" class="btn btn-secondary-smartnav">
+                    <i class="fa-solid fa-house me-1"></i> Return Home
+                </a>
+                <a href="javascript:location.reload()" class="btn btn-primary-smartnav">
+                    <i class="fa-solid fa-arrow-rotate-right me-1"></i> Try Again
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <div th:replace="~{fragments/footer :: scripts}"></div>
+</body>
+</html>

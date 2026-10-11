@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <circle cx="50" cy="50" r="46" fill="#0284c7" stroke="#ffffff" stroke-width="4"/>
+  <!-- Flood water waves & car sinking -->
+  <path d="M30 45 L45 35 L60 35 L70 45 Z" fill="#ffffff" opacity="0.9"/>
+  <path d="M18 55 Q35 45 50 55 T82 55" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
+  <path d="M18 68 Q35 58 50 68 T82 68" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
+  <path d="M22 80 Q37 72 52 80 T80 80" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+</svg>

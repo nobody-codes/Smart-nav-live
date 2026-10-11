@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: common-head('Administrator Portal Login')}">
+</head>
+<body class="d-flex flex-column min-vh-100" style="background: radial-gradient(circle at 50% 10%, #1e1b4b 0%, #090d16 100%);">
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="container py-5 my-auto">
+        <div class="row justify-content-center">
+            <div class="col-md-7 col-lg-5">
+                <div class="card-smartnav p-4 p-md-5" style="border: 1px solid rgba(245, 158, 11, 0.35); box-shadow: 0 10px 35px rgba(0,0,0,0.5);">
+                    <!-- Admin Header & Restricted Badge -->
+                    <div class="text-center mb-4">
+                        <div class="stat-icon-wrapper rounded-circle mx-auto mb-3 text-warning" style="width: 68px; height: 68px; background: rgba(245, 158, 11, 0.12); border: 2px solid rgba(245, 158, 11, 0.4);">
+                            <i class="fa-solid fa-shield-halved fs-2"></i>
+                        </div>
+                        <span class="badge bg-warning text-dark fw-bold text-uppercase px-3 py-1 mb-2" style="font-size: 0.72rem; letter-spacing: 1px;">
+                            <i class="fa-solid fa-lock me-1"></i> Restricted Area &bull; Authorized Personnel Only
+                        </span>
+                        <h3 class="fw-bold text-white mb-1">ADMINISTRATOR LOGIN</h3>
+                        <p class="text-secondary small">SmartNav Central Operations, Telemetry &amp; Incident Verification</p>
+                    </div>
+
+                    <!-- Alerts & Validation Messages -->
+                    <div th:if="${param.error != null and param.error[0] == 'admin_required'}" class="alert alert-danger py-2 px-3 small d-flex align-items-center gap-2 mb-3">
+                        <i class="fa-solid fa-shield-halved text-danger fs-5"></i>
+                        <span class="fw-bold">Admin access required.</span>
+                    </div>
+
+                    <div th:if="${param.error != null and (param.error[0] == 'bad_credentials' or param.error[0] == 'true')}" class="alert alert-danger py-2 px-3 small d-flex align-items-center gap-2 mb-3">
+                        <i class="fa-solid fa-triangle-exclamation text-danger fs-5"></i>
+                        <span>Invalid email or password.</span>
+                    </div>
+
+                    <div th:if="${param.error != null and param.error[0] == 'suspended'}" class="alert alert-danger py-2 px-3 small d-flex align-items-center gap-2 mb-3">
+                        <i class="fa-solid fa-ban text-danger fs-5"></i>
+                        <span>Your account is currently suspended. Please contact the administrator.</span>
+                    </div>
+
+                    <div th:if="${param.error != null and param.error[0] == 'blocked'}" class="alert alert-danger py-2 px-3 small d-flex align-items-center gap-2 mb-3">
+                        <i class="fa-solid fa-clock-rotate-left text-danger fs-5"></i>
+                        <span>Too many failed login attempts. Account temporarily locked for 15 minutes.</span>
+                    </div>
+
+                    <!-- Secure Admin Form -->
+                    <form th:action="@{/login}" method="post" id="adminLoginForm">
+                        <input type="hidden" name="adminLogin" value="true">
+
+                        <div class="mb-3">
+                            <label class="form-label text-secondary small fw-bold" for="adminEmail">Administrator Email</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-surface border-secondary-subtle text-warning"><i class="fa-solid fa-user-shield"></i></span>
+                                <input type="email" id="adminEmail" name="username" class="form-control form-control-smartnav" required placeholder="admin@smartnav.com" autocomplete="username">
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label text-secondary small fw-bold" for="adminPassword">Master Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-surface border-secondary-subtle text-warning"><i class="fa-solid fa-key"></i></span>
+                                <input type="password" id="adminPassword" name="password" class="form-control form-control-smartnav" required placeholder="••••••••" autocomplete="current-password">
+                                <button type="button" class="btn btn-secondary-smartnav px-3" id="toggleAdminPasswordBtn" title="Show/Hide password">
+                                    <i class="fa-regular fa-eye" id="toggleAdminPasswordIcon"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mb-4 form-check">
+                            <input type="checkbox" class="form-check-input" id="adminRememberMe" name="rememberMe">
+                            <label class="form-check-label text-secondary small" for="adminRememberMe">Remember Administrator Session</label>
+                        </div>
+
+                        <button type="submit" id="btnAdminLoginSubmit" class="btn btn-warning text-dark w-100 py-2 mb-3 fw-bold">
+                            <i class="fa-solid fa-shield-halved me-2"></i> ADMIN LOGIN
+                        </button>
+                    </form>
+
+                    <!-- Evaluation Quick Fill for Admin -->
+                    <div class="p-3 rounded bg-surface border border-secondary-subtle mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small fw-bold text-secondary text-uppercase" style="font-size: 0.7rem;">Quick Fill Admin Credentials</span>
+                            <i class="fa-solid fa-key text-warning small"></i>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-warning w-100" onclick="fillAdminCredentials('admin@smartnav.com', 'admin123')">
+                            <i class="fa-solid fa-shield-halved me-1"></i> Fill admin@smartnav.com / admin123
+                        </button>
+                    </div>
+
+                    <!-- Return link -->
+                    <div class="text-center text-secondary small pt-2 border-top border-secondary-subtle">
+                        <a th:href="@{/login}" class="text-secondary text-decoration-none hover-white">
+                            <i class="fa-solid fa-arrow-left me-1"></i> Return to Driver / Community Login
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <div th:replace="~{fragments/footer :: scripts}"></div>
+
+    <script>
+        const toggleAdminBtn = document.getElementById('toggleAdminPasswordBtn');
+        const adminPassInput = document.getElementById('adminPassword');
+        const adminIcon = document.getElementById('toggleAdminPasswordIcon');
+
+        if (toggleAdminBtn && adminPassInput) {
+            toggleAdminBtn.addEventListener('click', () => {
+                const type = adminPassInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                adminPassInput.setAttribute('type', type);
+                adminIcon.className = type === 'password' ? 'fa-regular fa-eye' : 'fa-regular fa-eye-slash text-warning';
+            });
+        }
+
+        const adminForm = document.getElementById('adminLoginForm');
+        const btnAdminSubmit = document.getElementById('btnAdminLoginSubmit');
+        if (adminForm && btnAdminSubmit) {
+            adminForm.addEventListener('submit', () => {
+                btnAdminSubmit.disabled = true;
+                btnAdminSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Verifying Admin Credentials...';
+            });
+        }
+
+        function fillAdminCredentials(email, pass) {
+            document.getElementById('adminEmail').value = email;
+            document.getElementById('adminPassword').value = pass;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark navbar-smartnav">
+    <div class="container-fluid px-lg-4">
+        <!-- Brand Logo -->
+        <a class="navbar-brand" th:href="@{/}">
+            <img th:src="@{/images/logo.svg}" alt="SmartNav" height="38">
+        </a>
+
+        <!-- Mobile Toggler -->
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Navbar Links -->
+        <div class="collapse navbar-collapse" id="navbarContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/}">
+                        <i class="fa-solid fa-house"></i> Home
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/map}">
+                        <i class="fa-solid fa-map-location-dot"></i> Live Map
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/routes}">
+                        <i class="fa-solid fa-route"></i> Route Planner
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-emerald" th:href="@{/report}" style="color: #10b981;">
+                        <i class="fa-solid fa-circle-plus"></i> Report Incident
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/leaderboard}">
+                        <i class="fa-solid fa-trophy text-warning"></i> Leaderboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/about}">
+                        <i class="fa-solid fa-circle-info"></i> About
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Right Actions (Auth / User Profile / Admin) -->
+            <div class="d-flex align-items-center gap-2">
+                <!-- Notifications Bell -->
+                <a th:href="@{/notifications}" class="btn btn-secondary-smartnav p-2 position-relative" title="Live Traffic Notifications">
+                    <i class="fa-solid fa-bell"></i>
+                    <span id="navNotificationBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" style="font-size: 0.65rem;">
+                        0
+                    </span>
+                </a>
+
+                <!-- Authenticated User Menu -->
+                <div th:if="${isAuthenticated}" class="dropdown">
+                    <button class="btn btn-secondary-smartnav dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown">
+                        <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-weight: 700; font-size: 0.8rem;" th:text="${currentUser != null ? #strings.substring(currentUser.name, 0, 1) : 'U'}">
+                            U
+                        </div>
+                        <span class="d-none d-md-inline" th:text="${currentUser != null ? currentUser.name : 'Account'}">User</span>
+                        <span class="badge badge-rank-bronze ms-1" style="font-size: 0.7rem;" th:text="${currentUser != null ? currentUser.points + ' pts' : '0 pts'}">0 pts</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow-lg" style="background: #1e293b; border-color: rgba(255,255,255,0.1);">
+                        <li><h6 class="dropdown-header text-secondary" th:text="${currentUser != null ? currentUser.email : ''}">user@smartnav.com</h6></li>
+                        <li><a class="dropdown-item" th:href="@{/dashboard}"><i class="fa-solid fa-gauge me-2 text-primary"></i> Dashboard</a></li>
+                        <li><a class="dropdown-item" th:href="@{/profile}"><i class="fa-solid fa-user-gear me-2 text-info"></i> Profile & Settings</a></li>
+                        <li><a class="dropdown-item" th:href="@{/my-reports}"><i class="fa-solid fa-clock-rotate-left me-2 text-warning"></i> My Reports</a></li>
+                        
+                        <!-- Admin Panel Link -->
+                        <li th:if="${isAdmin}"><hr class="dropdown-divider border-secondary"></li>
+                        <li th:if="${isAdmin}">
+                            <a class="dropdown-item text-warning fw-bold" th:href="@{/admin/dashboard}">
+                                <i class="fa-solid fa-shield-halved me-2"></i> Admin Portal
+                            </a>
+                        </li>
+                        <li th:if="${isAdmin}">
+                            <a class="dropdown-item text-info fw-bold" th:href="@{/admin/map}">
+                                <i class="fa-solid fa-map-location me-2"></i> Dedicated Admin Map
+                            </a>
+                        </li>
+                        
+                        <li><hr class="dropdown-divider border-secondary"></li>
+                        <li>
+                            <form th:action="@{/logout}" method="post" class="m-0">
+                                <button type="submit" class="dropdown-item text-danger">
+                                    <i class="fa-solid fa-right-from-bracket me-2"></i> Sign Out
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Guest / Unauthenticated Actions -->
+                <div th:unless="${isAuthenticated}" class="d-flex align-items-center gap-2">
+                    <a th:href="@{/login}" class="btn btn-secondary-smartnav">
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i> Login
+                    </a>
+                    <a th:href="@{/register}" class="btn btn-primary-smartnav">
+                        <i class="fa-solid fa-user-plus"></i> Join SmartNav
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+</html>

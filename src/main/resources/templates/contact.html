@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: common-head('Contact & Support')}">
+</head>
+<body>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="container py-5">
+        <div class="text-center max-w-2xl mx-auto mb-5">
+            <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-bold mb-2">COMMUNITY SUPPORT</span>
+            <h1 class="display-6 fw-bold text-white mb-2">Get in Touch with SmartNav</h1>
+            <p class="text-secondary fs-5">Have questions regarding traffic reporting, algorithm tuning, or municipal map integration?</p>
+        </div>
+
+        <div class="row g-5">
+            <!-- Contact Form -->
+            <div class="col-lg-7">
+                <div class="card-smartnav p-4 p-md-5">
+                    <h4 class="fw-bold text-white mb-3">Send Us a Message</h4>
+                    <form onsubmit="event.preventDefault(); alert('Thank you for contacting SmartNav Support! We have received your inquiry.'); this.reset();">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label text-secondary small">Your Name</label>
+                                <input type="text" class="form-control form-control-smartnav" required placeholder="John Doe">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-secondary small">Email Address</label>
+                                <input type="email" class="form-control form-control-smartnav" required placeholder="john@example.com">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label text-secondary small">Subject</label>
+                                <input type="text" class="form-control form-control-smartnav" required placeholder="Question about Crowdsourced Reporting">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label text-secondary small">Message</label>
+                                <textarea class="form-control form-control-smartnav" rows="5" required placeholder="Describe your inquiry or feedback..."></textarea>
+                            </div>
+                            <div class="col-12 pt-2">
+                                <button type="submit" class="btn btn-primary-smartnav w-100 py-2">
+                                    <i class="fa-solid fa-paper-plane me-2"></i> Submit Inquiry
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- FAQs & Info -->
+            <div class="col-lg-5">
+                <div class="d-flex flex-column gap-4">
+                    <div class="card-smartnav p-4">
+                        <h5 class="fw-bold text-white mb-3"><i class="fa-solid fa-circle-question text-info me-2"></i>Frequently Asked Questions</h5>
+                        <div class="accordion accordion-flush" id="faqAccordion">
+                            <div class="accordion-item bg-transparent border-secondary-subtle">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button bg-transparent text-white collapsed px-0" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                        How are crowdsourced reports verified?
+                                    </button>
+                                </h2>
+                                <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body px-0 text-secondary small">
+                                        Reports are either vetted in real time by administrative traffic controllers or verified through community upvotes and cross-referencing nearby driver reports.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item bg-transparent border-secondary-subtle">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button bg-transparent text-white collapsed px-0" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                        How do I earn badges on the Leaderboard?
+                                    </button>
+                                </h2>
+                                <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body px-0 text-secondary small">
+                                        Submitting an incident awards 2 contribution points. When an incident is approved by an administrator, you earn 10 points. Reach 100 points to unlock Platinum Sentinel!
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item bg-transparent border-secondary-subtle">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button bg-transparent text-white collapsed px-0" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                        Does the map work offline?
+                                    </button>
+                                </h2>
+                                <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                                    <div class="accordion-body px-0 text-secondary small">
+                                        The application includes a self-contained heuristic fallback routing algorithm capable of generating detours even if external OpenStreetMap routing servers are unreachable.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-smartnav p-4">
+                        <h6 class="fw-bold text-white mb-2"><i class="fa-solid fa-laptop-code text-primary me-2"></i>Academic Project Support</h6>
+                        <p class="text-secondary small mb-3">
+                            Developed for Computer Science & Engineering Final Year Degree Evaluation. Complete with normalized SQL schema, unit test suite, and full REST API specification.
+                        </p>
+                        <div class="text-secondary small">
+                            <i class="fa-solid fa-envelope me-2 text-info"></i> support@smartnav.com
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <div th:replace="~{fragments/footer :: scripts}"></div>
+</body>
+</html>

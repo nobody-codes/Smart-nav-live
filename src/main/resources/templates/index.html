@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: common-head('Live Crowdsourced Traffic & Smart Navigation')}">
+</head>
+<body>
+
+    <!-- Navbar -->
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <!-- Hero Section -->
+    <section class="hero-smartnav">
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6">
+                    <div class="hero-badge">
+                        <i class="fa-solid fa-satellite-dish pulse-emerald"></i> Real-Time Telemetry Active
+                    </div>
+                    <h1 class="hero-title">
+                        Crowdsourced Traffic.<br>
+                        <span class="hero-highlight">Intelligent Navigation.</span>
+                    </h1>
+                    <p class="text-secondary fs-5 mb-4 leading-relaxed">
+                        Beat urban gridlock with live crowdsourced incident reporting, dynamic obstacle avoidance, and real-time congestion rerouting powered by OpenStreetMap and STOMP WebSockets.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3 mb-4">
+                        <a th:href="@{/map}" class="btn btn-primary-smartnav px-4 py-3 fs-6">
+                            <i class="fa-solid fa-map-location-dot me-2"></i> Explore Live Map
+                        </a>
+                        <a th:href="@{/routes}" class="btn btn-cyan-gradient px-4 py-3 fs-6">
+                            <i class="fa-solid fa-route me-2"></i> Plan Safe Route
+                        </a>
+                        <a th:href="@{/report}" class="btn btn-secondary-smartnav px-4 py-3 fs-6">
+                            <i class="fa-solid fa-plus-circle me-2 text-primary"></i> Report Incident
+                        </a>
+                    </div>
+                    <div class="d-flex align-items-center gap-4 pt-2 text-secondary small">
+                        <span><i class="fa-solid fa-check-circle text-primary me-1"></i> Automatic Detours</span>
+                        <span><i class="fa-solid fa-check-circle text-primary me-1"></i> Live WebSockets</span>
+                        <span><i class="fa-solid fa-check-circle text-primary me-1"></i> Contributor Badges</span>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <!-- Live Map Interactive Preview Card -->
+                    <div class="card-smartnav p-3 position-relative">
+                        <div class="d-flex justify-content-between align-items-center mb-2 px-1">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-danger pulse-emerald" style="width: 10px; height: 10px; padding: 0; border-radius: 50%;"></span>
+                                <span class="small fw-bold text-light">Live Incidents Radar</span>
+                            </div>
+                            <a th:href="@{/map}" class="badge bg-secondary-subtle text-light text-decoration-none">
+                                Full Screen <i class="fa-solid fa-arrow-up-right-from-square ms-1"></i>
+                            </a>
+                        </div>
+                        <div id="previewMap" style="height: 380px; border-radius: 12px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Real-Time Statistics Counters -->
+    <section class="py-4 border-top border-bottom border-secondary-subtle bg-surface">
+        <div class="container">
+            <div class="row g-3 text-center">
+                <div class="col-6 col-md-3">
+                    <div class="p-3">
+                        <div class="fs-2 fw-bold text-primary mb-1" th:text="${stats != null ? stats.totalUsers : '1,240'}">12</div>
+                        <div class="text-secondary small text-uppercase fw-semibold">Community Drivers</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="p-3">
+                        <div class="fs-2 fw-bold text-info mb-1" th:text="${stats != null ? stats.activeReports : '84'}">8</div>
+                        <div class="text-secondary small text-uppercase fw-semibold">Active Incidents</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="p-3">
+                        <div class="fs-2 fw-bold text-warning mb-1" th:text="${stats != null ? stats.approvedReports : '156'}">12</div>
+                        <div class="text-secondary small text-uppercase fw-semibold">Verified Hazards</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="p-3">
+                        <div class="fs-2 fw-bold text-success mb-1">&lt; 300ms</div>
+                        <div class="text-secondary small text-uppercase fw-semibold">Rerouting Latency</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Key Features Grid -->
+    <section class="py-5">
+        <div class="container py-4">
+            <div class="text-center max-w-xl mx-auto mb-5">
+                <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-bold mb-2">SYSTEM ARCHITECTURE</span>
+                <h2 class="display-6 fw-bold">Built for Real-World Urban Mobility</h2>
+                <p class="text-secondary">Engineered with high performance Java 17, Spring Boot WebSocket messaging, and Leaflet geospatial overlays.</p>
+            </div>
+
+            <div class="row g-4">
+                <!-- Feature 1 -->
+                <div class="col-md-4">
+                    <div class="card-smartnav p-4 h-100">
+                        <div class="stat-icon-wrapper bg-primary-light text-primary mb-3">
+                            <i class="fa-solid fa-satellite"></i>
+                        </div>
+                        <h4 class="fw-bold mb-2">Crowdsourced Alerts</h4>
+                        <p class="text-secondary small">
+                            Users instantly report accidents, traffic jams, road blocks, construction, floods, police checks, and broken signals with geocoded coordinates and photo uploads.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="col-md-4">
+                    <div class="card-smartnav p-4 h-100">
+                        <div class="stat-icon-wrapper bg-secondary-light text-secondary mb-3">
+                            <i class="fa-solid fa-route"></i>
+                        </div>
+                        <h4 class="fw-bold mb-2">Intelligent Navigation</h4>
+                        <p class="text-secondary small">
+                            Dynamic pathfinding calculates shortest paths while actively steering drivers around confirmed roadblocks and adjusting travel times for heavy traffic congestion.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="col-md-4">
+                    <div class="card-smartnav p-4 h-100">
+                        <div class="stat-icon-wrapper text-warning mb-3" style="background: rgba(245, 158, 11, 0.15);">
+                            <i class="fa-solid fa-bolt"></i>
+                        </div>
+                        <h4 class="fw-bold mb-2">Instant WebSocket Push</h4>
+                        <p class="text-secondary small">
+                            Sub-second bidirectional STOMP notifications broadcast new incidents and status updates to all active drivers without requiring page refreshes.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="col-md-4">
+                    <div class="card-smartnav p-4 h-100">
+                        <div class="stat-icon-wrapper text-info mb-3" style="background: rgba(6, 182, 212, 0.15);">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <h4 class="fw-bold mb-2">Admin Moderation Portal</h4>
+                        <p class="text-secondary small">
+                            Comprehensive administrative control panel allows officials to review, approve, reject, or purge fake reports, with integrated Chart.js trend analytics.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="col-md-4">
+                    <div class="card-smartnav p-4 h-100">
+                        <div class="stat-icon-wrapper text-danger mb-3" style="background: rgba(239, 68, 68, 0.15);">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                        <h4 class="fw-bold mb-2">Red-Line Congestion</h4>
+                        <p class="text-secondary small">
+                            Congested road segments are dynamically painted in high-visibility red along your route, giving drivers immediate visual situational awareness.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="col-md-4">
+                    <div class="card-smartnav p-4 h-100">
+                        <div class="stat-icon-wrapper text-success mb-3" style="background: rgba(16, 185, 129, 0.15);">
+                            <i class="fa-solid fa-medal"></i>
+                        </div>
+                        <h4 class="fw-bold mb-2">Gamified Contributions</h4>
+                        <p class="text-secondary small">
+                            Earn contribution points for verified incident reports and ascend through Bronze Scout, Silver Navigator, Gold Pioneer, and Platinum Sentinel ranks.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recent Verified Incidents List -->
+    <section class="py-5 bg-surface border-top border-secondary-subtle">
+        <div class="container py-2">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h3 class="fw-bold mb-1">Live Verified Incidents</h3>
+                    <p class="text-secondary small mb-0">Recently confirmed traffic hazards in metropolitan corridors</p>
+                </div>
+                <a th:href="@{/map}" class="btn btn-secondary-smartnav">
+                    View All on Map <i class="fa-solid fa-arrow-right ms-2"></i>
+                </a>
+            </div>
+
+            <div class="row g-3">
+                <div th:each="r : ${recentReports}" class="col-md-6 col-lg-4">
+                    <div class="card-smartnav p-3 h-100">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge badge-status-approved">APPROVED</span>
+                            <span class="badge bg-secondary-subtle text-light" th:text="${r.severity}">HIGH</span>
+                        </div>
+                        <h6 class="fw-bold text-white mb-1 d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-location-dot text-primary"></i>
+                            <span th:text="${r.category}">ACCIDENT</span>
+                        </h6>
+                        <div class="text-secondary small mb-2 text-truncate" th:text="${r.address}">Address</div>
+                        <div class="small text-light mb-3" th:text="${r.description}">Incident summary...</div>
+                        <div class="mt-auto pt-2 border-top border-secondary-subtle d-flex justify-content-between align-items-center small text-secondary">
+                            <span th:text="'Reported by ' + ${r.userName}">By John Doe</span>
+                            <span th:text="${#temporals.format(r.createdAt, 'HH:mm MMM dd')}">12:30</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action Banner -->
+    <section class="py-5 text-center">
+        <div class="container py-4">
+            <div class="card-smartnav p-5 bg-gradient border-primary" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(6, 182, 212, 0.15) 100%);">
+                <h2 class="display-6 fw-bold mb-3">Contribute to Safer, Faster Commutes</h2>
+                <p class="text-secondary fs-5 mb-4 mx-auto" style="max-width: 600px;">
+                    Join thousands of everyday drivers sharing road alerts. Earn points, earn badges, and bypass traffic jams in real time.
+                </p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a th:href="@{/register}" class="btn btn-primary-smartnav px-4 py-3">
+                        <i class="fa-solid fa-user-plus me-2"></i> Create Free Account
+                    </a>
+                    <a th:href="@{/routes}" class="btn btn-secondary-smartnav px-4 py-3">
+                        <i class="fa-solid fa-route me-2 text-info"></i> Test Route Engine
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/footer :: scripts}"></div>
+    <script th:src="@{/js/map.js}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize mini live preview map on homepage
+            MapEngine.init('previewMap', { zoom: 12, enableClickToReport: false });
+        });
+    </script>
+</body>
+</html>

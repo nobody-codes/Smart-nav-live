@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: common-head('Live Interactive Traffic Map')}">
+</head>
+<body style="overflow: hidden;">
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="map-container-fullscreen">
+        <!-- Floating Interactive Filter & Search Bar -->
+        <div class="map-floating-panel">
+            <!-- Search Location -->
+            <div class="input-group mb-2">
+                <input type="text" id="mapSearchInput" class="form-control form-control-smartnav" 
+                       placeholder="Search real location (e.g. Pune Station, Mumbai Airport, FC Road)..." autocomplete="off">
+                <button class="btn btn-primary-smartnav" type="button" id="mapSearchBtn" title="Search Location">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+            </div>
+
+            <!-- "Use My Location" Button -->
+            <button type="button" id="btnUseMyLocation" class="btn btn-sm btn-outline-info w-100 mb-2 py-1 px-3 d-flex align-items-center justify-content-center gap-2" title="Use My Location">
+                <i class="fa-solid fa-crosshairs text-info"></i>
+                <span class="fw-bold">Use My Location</span>
+            </button>
+
+            <!-- Indian City Quick-Jump Selector -->
+            <div class="mb-3">
+                <label class="form-label text-secondary small fw-bold text-uppercase d-flex justify-content-between align-items-center mb-1" style="font-size: 0.68rem;">
+                    <span><i class="fa-solid fa-city text-primary me-1"></i> Quick Jump to City</span>
+                    <span class="badge bg-secondary-subtle text-light">Real Map Data</span>
+                </label>
+                <div class="d-flex flex-wrap gap-1">
+                    <button class="btn btn-sm btn-outline-light city-jump-btn active py-0 px-2" data-city="pune" style="font-size: 0.75rem;">Pune</button>
+                    <button class="btn btn-sm btn-outline-light city-jump-btn py-0 px-2" data-city="mumbai" style="font-size: 0.75rem;">Mumbai</button>
+                    <button class="btn btn-sm btn-outline-light city-jump-btn py-0 px-2" data-city="bengaluru" style="font-size: 0.75rem;">Bengaluru</button>
+                    <button class="btn btn-sm btn-outline-light city-jump-btn py-0 px-2" data-city="delhi" style="font-size: 0.75rem;">Delhi</button>
+                    <button class="btn btn-sm btn-outline-light city-jump-btn py-0 px-2" data-city="hyderabad" style="font-size: 0.75rem;">Hyderabad</button>
+                    <button class="btn btn-sm btn-outline-light city-jump-btn py-0 px-2" data-city="nashik" style="font-size: 0.75rem;">Nashik</button>
+                </div>
+            </div>
+
+            <!-- Category Filter Pills (All 11 Incident Types) -->
+            <div class="mb-3">
+                <label class="form-label text-secondary small fw-bold text-uppercase mb-1" style="font-size: 0.68rem;">Filter Incidents by Category</label>
+                <div class="d-flex flex-wrap gap-1" style="max-height: 140px; overflow-y: auto;">
+                    <button class="btn btn-sm btn-secondary-smartnav filter-category-btn active py-1 px-2" data-category="ALL" style="font-size: 0.75rem;">All</button>
+                    <button class="btn btn-sm btn-secondary-smartnav filter-category-btn py-1 px-2" data-category="ACCIDENT" style="font-size: 0.75rem;"><i class="fa-solid fa-car-burst text-danger me-1"></i>Accident</button>
+                    <button class="btn btn-sm btn-secondary-smartnav filter-category-btn py-1 px-2" data-category="TRAFFIC_JAM" style="font-size: 0.75rem;"><i class="fa-solid fa-truck-moving text-warning me-1"></i>Traffic Jam</button>
+                    <button class="btn btn-sm btn-secondary-smartnav filter-category-btn py-1 px-2" data-category="ROAD_BLOCK" style="font-size: 0.75rem;"><i class="fa-solid fa-ban text-danger me-1"></i>Road Block</button>
+                    <button class="btn btn-sm btn-secondary-smartnav filter-category-btn py-1 px-2" data-category="CONSTRUCTION" style="font-size: 0.75rem;"><i class="fa-solid fa-person-digging text-warning me-1"></i>Construction</button>
+                    <button class="btn btn-sm btn-secondary-smartnav filter-category-btn py-1 px-2" data-category="POTHOLE" style="font-size: 0.75rem;"><i class="fa-solid fa-triangle-exclamation text-warning me-1"></i>Pothole</button>
+                    <button class="btn btn-sm btn-secondary-smartnav filter-category-btn py-1 px-2" data-category="FLOOD" style="font-size: 0.75rem;"><i class="fa-solid fa-water text-info me-1"></i>Flood</button>
+                    <button class="btn btn-sm btn-secondary-smartnav filter-category-btn py-1 px-2" data-category="BROKEN_SIGNAL" style="font-size: 0.75rem;"><i class="fa-solid fa-traffic-light text-secondary me-1"></i>Signal</button>
+                    <button class="btn btn-sm btn-secondary-smartnav filter-category-btn py-1 px-2" data-category="VEHICLE_BREAKDOWN" style="font-size: 0.75rem;"><i class="fa-solid fa-car-side text-danger me-1"></i>Breakdown</button>
+                    <button class="btn btn-sm btn-secondary-smartnav filter-category-btn py-1 px-2" data-category="FIRE" style="font-size: 0.75rem;"><i class="fa-solid fa-fire text-danger me-1"></i>Fire</button>
+                    <button class="btn btn-sm btn-secondary-smartnav filter-category-btn py-1 px-2" data-category="POLICE_CHECKPOINT" style="font-size: 0.75rem;"><i class="fa-solid fa-shield-halved text-primary me-1"></i>Police</button>
+                    <button class="btn btn-sm btn-secondary-smartnav filter-category-btn py-1 px-2" data-category="OTHER" style="font-size: 0.75rem;"><i class="fa-solid fa-circle-exclamation text-secondary me-1"></i>Other</button>
+                </div>
+            </div>
+
+            <!-- Quick Action & Hint -->
+            <div class="p-2 rounded bg-surface border border-secondary-subtle small d-flex align-items-center justify-content-between">
+                <span class="text-secondary"><i class="fa-solid fa-hand-pointer text-primary me-1"></i> Click map to pin report</span>
+                <a th:href="@{/routes}" class="btn btn-sm btn-cyan-gradient py-1 px-2" style="font-size: 0.75rem;">
+                    <i class="fa-solid fa-route me-1"></i> Plan Route
+                </a>
+            </div>
+        </div>
+
+        <!-- Floating Map Control Buttons (Locate Me, Fullscreen, Add Report) -->
+        <div class="map-controls-panel">
+            <button id="btnLocateMe" class="map-btn-circle" title="Use My Location">
+                <i class="fa-solid fa-crosshairs fs-5 text-primary"></i>
+            </button>
+            <button id="btnFullscreen" class="map-btn-circle" title="Toggle Fullscreen">
+                <i class="fa-solid fa-expand fs-5 text-info"></i>
+            </button>
+            <button class="map-btn-circle" title="Report Traffic Incident" data-bs-toggle="modal" data-bs-target="#reportIncidentModal">
+                <i class="fa-solid fa-plus fs-5 text-success"></i>
+            </button>
+        </div>
+
+        <!-- Fullscreen Leaflet Map Container -->
+        <div id="mainMap" style="height: calc(100vh - 72px); border-radius: 0;"></div>
+    </div>
+
+    <!-- Quick Report Modal (Triggered by Map Click or Plus Button) -->
+    <div class="modal fade" id="reportIncidentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content card-smartnav border-secondary-subtle">
+                <div class="modal-header border-secondary-subtle">
+                    <h5 class="modal-title fw-bold text-white d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-triangle-exclamation text-warning"></i> Report Traffic Incident
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="modalReportForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label text-secondary small">Incident Category</label>
+                                <select id="modalCategory" class="form-select form-select-smartnav" required>
+                                    <option value="ACCIDENT">🚗 Accident</option>
+                                    <option value="TRAFFIC_JAM" selected>🚦 Traffic Jam</option>
+                                    <option value="ROAD_BLOCK">🚫 Road Block</option>
+                                    <option value="CONSTRUCTION">🚧 Road Construction</option>
+                                    <option value="POTHOLE">🕳️ Pothole / Road Damage</option>
+                                    <option value="FLOOD">🌊 Flooded Road</option>
+                                    <option value="BROKEN_SIGNAL">⚡ Broken Traffic Signal</option>
+                                    <option value="VEHICLE_BREAKDOWN">🚙 Vehicle Breakdown</option>
+                                    <option value="FIRE">🔥 Fire Incident</option>
+                                    <option value="POLICE_CHECKPOINT">👮 Police Checkpoint</option>
+                                    <option value="OTHER">⚠️ Other Hazard</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-secondary small">Severity Level</label>
+                                <select id="modalSeverity" class="form-select form-select-smartnav">
+                                    <option value="LOW">Low (Slight delay)</option>
+                                    <option value="MEDIUM" selected>Medium (Standard obstruction)</option>
+                                    <option value="HIGH">High (Major delay)</option>
+                                    <option value="CRITICAL">Critical (Total road closure)</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label text-secondary small">Resolved Address / Landmark</label>
+                                <input type="text" id="reportAddress" class="form-control form-control-smartnav" required 
+                                       placeholder="Street address or landmark in Pune, Mumbai, Delhi, etc.">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-secondary small">City</label>
+                                <input type="text" id="reportCity" class="form-control form-control-smartnav" value="Pune" placeholder="City name">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label text-secondary small">State</label>
+                                <input type="text" id="reportState" class="form-control form-control-smartnav" value="Maharashtra" placeholder="State">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label text-secondary small">Latitude</label>
+                                <input type="number" step="0.000001" id="reportLat" class="form-control form-control-smartnav" required readonly value="18.5204">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label text-secondary small">Longitude</label>
+                                <input type="number" step="0.000001" id="reportLng" class="form-control form-control-smartnav" required readonly value="73.8567">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label text-secondary small">Incident Description</label>
+                                <textarea id="modalDescription" class="form-control form-control-smartnav" rows="3" required 
+                                          placeholder="Describe situation (e.g. 2 lanes blocked, heavy congestion, emergency vehicles on site)..."></textarea>
+                            </div>
+                        </div>
+
+                        <div th:unless="${isAuthenticated}" class="alert alert-info py-2 small mt-3 mb-0">
+                            <i class="fa-solid fa-circle-info me-1"></i> Submitting as Community Contributor. <a th:href="@{/login}" class="fw-bold text-dark">Sign in</a> to track personal points.
+                        </div>
+
+                        <div class="modal-footer border-secondary-subtle px-0 pb-0 mt-3">
+                            <button type="button" class="btn btn-secondary-smartnav" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" id="btnModalSubmit" class="btn btn-primary-smartnav">
+                                <i class="fa-solid fa-paper-plane me-1"></i> Store in Database / Submit
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <div th:replace="~{fragments/footer :: scripts}"></div>
+    <script th:src="@{/js/map.js}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize main map centered on Pune (18.5204, 73.8567)
+            MapEngine.init('mainMap', { 
+                center: [18.5204, 73.8567],
+                zoom: 13, 
+                enableClickToReport: true 
+            });
+
+            // Handle Quick Report Modal Submission
+            document.getElementById('modalReportForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+                const submitBtn = document.getElementById('btnModalSubmit');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Publishing...';
+
+                const payload = {
+                    category: document.getElementById('modalCategory').value,
+                    severity: document.getElementById('modalSeverity').value,
+                    address: document.getElementById('reportAddress').value,
+                    city: document.getElementById('reportCity').value || 'Pune',
+                    state: document.getElementById('reportState').value || 'Maharashtra',
+                    country: 'India',
+                    latitude: parseFloat(document.getElementById('reportLat').value),
+                    longitude: parseFloat(document.getElementById('reportLng').value),
+                    description: document.getElementById('modalDescription').value
+                };
+
+                fetch('/api/reports', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                })
+                .then(res => res.json())
+                .then(res => {
+                    if (res.success) {
+                        SmartNav.showToast({
+                            title: 'Coordinates Stored in Database! 🎉',
+                            message: 'Your report and real coordinates were recorded in the database.',
+                            type: 'success'
+                        });
+                        if (res.data) {
+                            if (!MapEngine.mySessionReportIds) MapEngine.mySessionReportIds = new Set();
+                            MapEngine.mySessionReportIds.add(res.data.id);
+                            MapEngine.allReports.unshift(res.data);
+                            MapEngine.addMarkerForReport(res.data);
+                        }
+                        if (MapEngine.selectedMarker) {
+                            MapEngine.map.removeLayer(MapEngine.selectedMarker);
+                            MapEngine.selectedMarker = null;
+                        }
+                        bootstrap.Modal.getInstance(document.getElementById('reportIncidentModal')).hide();
+                        document.getElementById('modalReportForm').reset();
+                    } else {
+                        alert(res.message || 'Error submitting report.');
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('Submission error. Check console.');
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane me-1"></i> Submit Report (+2 pts)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

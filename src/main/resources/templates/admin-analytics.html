@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: common-head('Traffic Analytics & Reporting')}">
+</head>
+<body>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="container-fluid px-lg-4 py-4">
+        <!-- Header -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+            <div>
+                <h2 class="fw-bold text-white mb-1">Traffic Telemetry & System Analytics</h2>
+                <p class="text-secondary small mb-0">Visual analysis of metropolitan incidents, congestion patterns, and community growth.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a th:href="@{/api/reports/export/csv}" class="btn btn-secondary-smartnav">
+                    <i class="fa-solid fa-file-excel me-1 text-success"></i> Export Excel/CSV
+                </a>
+                <button id="btnExportPdf" class="btn btn-secondary-smartnav">
+                    <i class="fa-solid fa-file-pdf me-1 text-danger"></i> Export PDF Report
+                </button>
+            </div>
+        </div>
+
+        <!-- 3 In-Depth Visualizations -->
+        <div class="row g-4 mb-4">
+            <div class="col-lg-6">
+                <div class="card-smartnav p-4 h-100">
+                    <h5 class="fw-bold text-white mb-3"><i class="fa-solid fa-chart-line text-success me-2"></i>Daily Incident Trends (Last 7 Days)</h5>
+                    <div style="height: 320px; position: relative;">
+                        <canvas id="dailyTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="card-smartnav p-4 h-100">
+                    <h5 class="fw-bold text-white mb-3"><i class="fa-solid fa-chart-column text-info me-2"></i>Monthly User Growth (Last 6 Months)</h5>
+                    <div style="height: 320px; position: relative;">
+                        <canvas id="monthlyGrowthChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="card-smartnav p-4 h-100">
+                    <h5 class="fw-bold text-white mb-3"><i class="fa-solid fa-chart-pie text-primary me-2"></i>Hazard Distribution by Category</h5>
+                    <div style="height: 320px; position: relative;">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="card-smartnav p-4 h-100">
+                    <h5 class="fw-bold text-white mb-3"><i class="fa-solid fa-shield-halved text-warning me-2"></i>Navigation Avoidance KPI Metrics</h5>
+                    <div class="d-flex flex-column gap-3 mt-3">
+                        <div class="p-3 rounded bg-surface border border-secondary-subtle d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-white fw-semibold">Congestion Time Multiplier</div>
+                                <div class="text-secondary small">Average travel delay penalty applied to heavy traffic zones</div>
+                            </div>
+                            <span class="fs-4 fw-bold text-warning">1.8x</span>
+                        </div>
+                        <div class="p-3 rounded bg-surface border border-secondary-subtle d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-white fw-semibold">Dynamic Detour Success Rate</div>
+                                <div class="text-secondary small">Percentage of calculated routes avoiding active obstacles</div>
+                            </div>
+                            <span class="fs-4 fw-bold text-success">98.4%</span>
+                        </div>
+                        <div class="p-3 rounded bg-surface border border-secondary-subtle d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="text-white fw-semibold">Real-Time WebSocket Sync Latency</div>
+                                <div class="text-secondary small">Average delay from incident report to client map update</div>
+                            </div>
+                            <span class="fs-4 fw-bold text-info">~180ms</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <div th:replace="~{fragments/footer :: scripts}"></div>
+    <script th:src="@{/js/admin.js}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            AdminEngine.loadAnalyticsCharts();
+            document.getElementById('btnExportPdf')?.addEventListener('click', () => window.print());
+        });
+    </script>
+</body>
+</html>

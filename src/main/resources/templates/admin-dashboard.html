@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: common-head('Admin Operations & Telemetry Dashboard')}">
+</head>
+<body>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="container-fluid px-lg-4 py-4">
+        <!-- Admin Header -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+            <div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-danger-subtle text-danger fw-bold">ADMINISTRATIVE PORTAL</span>
+                    <span class="text-secondary small">&bull;</span>
+                    <span class="text-success small d-flex align-items-center gap-1"><i class="fa-solid fa-circle" style="font-size: 8px;"></i> Live Polling</span>
+                </div>
+                <h2 class="fw-bold text-white mb-0 mt-1">Traffic Command & Analytics Control Center</h2>
+            </div>
+            <div class="d-flex gap-2">
+                <a th:href="@{/api/reports/export/csv}" class="btn btn-secondary-smartnav">
+                    <i class="fa-solid fa-file-csv me-1 text-success"></i> Export CSV
+                </a>
+                <a th:href="@{/admin/reports}" class="btn btn-primary-smartnav">
+                    <i class="fa-solid fa-list-check me-1"></i> Review Reports Queue
+                </a>
+            </div>
+        </div>
+
+        <!-- 5 Summary Stat Widgets Required by Prompt -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-4 col-xl">
+                <div class="stat-card-widget">
+                    <div class="stat-icon-wrapper bg-primary-light text-primary">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div>
+                        <div class="fs-4 fw-bold text-white" th:text="${analytics != null ? analytics.totalUsers : '0'}">0</div>
+                        <div class="text-secondary small">Total Users</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6 col-md-4 col-xl">
+                <div class="stat-card-widget">
+                    <div class="stat-icon-wrapper bg-secondary-light text-info">
+                        <i class="fa-solid fa-signal"></i>
+                    </div>
+                    <div>
+                        <div class="fs-4 fw-bold text-white" th:text="${analytics != null ? analytics.activeReports : '0'}">0</div>
+                        <div class="text-secondary small">Active Reports</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6 col-md-4 col-xl">
+                <div class="stat-card-widget">
+                    <div class="stat-icon-wrapper text-success" style="background: rgba(16, 185, 129, 0.15);">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div>
+                        <div class="fs-4 fw-bold text-white" th:text="${analytics != null ? analytics.approvedReports : '0'}">0</div>
+                        <div class="text-secondary small">Approved Reports</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6 col-md-4 col-xl">
+                <div class="stat-card-widget">
+                    <div class="stat-icon-wrapper text-warning" style="background: rgba(245, 158, 11, 0.15);">
+                        <i class="fa-solid fa-hourglass-half"></i>
+                    </div>
+                    <div>
+                        <div class="fs-4 fw-bold text-white" th:text="${analytics != null ? analytics.pendingReports : '0'}">0</div>
+                        <div class="text-secondary small">Pending Reports</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-4 col-xl">
+                <div class="stat-card-widget">
+                    <div class="stat-icon-wrapper text-danger" style="background: rgba(239, 68, 68, 0.15);">
+                        <i class="fa-solid fa-calendar-day"></i>
+                    </div>
+                    <div>
+                        <div class="fs-4 fw-bold text-white" th:text="${analytics != null ? analytics.todayReports : '0'}">0</div>
+                        <div class="text-secondary small">Today's Reports</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row: 3 Chart.js Visualizations -->
+        <div class="row g-4 mb-4">
+            <!-- 1. Reports by Category -->
+            <div class="col-lg-4">
+                <div class="card-smartnav p-3 h-100">
+                    <div class="card-header-smartnav mb-2 px-1">
+                        <span class="text-white"><i class="fa-solid fa-chart-pie text-primary me-2"></i>Incidents by Category</span>
+                    </div>
+                    <div style="height: 280px; position: relative;">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Daily Traffic Reports -->
+            <div class="col-lg-4">
+                <div class="card-smartnav p-3 h-100">
+                    <div class="card-header-smartnav mb-2 px-1">
+                        <span class="text-white"><i class="fa-solid fa-chart-line text-success me-2"></i>Daily Incident Trends</span>
+                    </div>
+                    <div style="height: 280px; position: relative;">
+                        <canvas id="dailyTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Monthly User Growth -->
+            <div class="col-lg-4">
+                <div class="card-smartnav p-3 h-100">
+                    <div class="card-header-smartnav mb-2 px-1">
+                        <span class="text-white"><i class="fa-solid fa-chart-column text-info me-2"></i>Monthly User Growth</span>
+                    </div>
+                    <div style="height: 280px; position: relative;">
+                        <canvas id="monthlyGrowthChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Incident Command Center Map -->
+        <div class="card-smartnav p-3 mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 pb-2 border-bottom border-secondary-subtle gap-2">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-warning pulse-emerald" style="width: 10px; height: 10px; padding: 0; border-radius: 50%;"></span>
+                    <h5 class="fw-bold text-white mb-0">Live Incident Telemetry & Spatial Command Center</h5>
+                    <span class="badge bg-secondary-subtle text-light small"><i class="fa-solid fa-satellite me-1"></i>OpenStreetMap Spatial Layer</span>
+                </div>
+                <div class="d-flex gap-2">
+                    <a th:href="@{/map}" class="btn btn-sm btn-cyan-gradient">
+                        <i class="fa-solid fa-expand me-1"></i> Fullscreen Public Map
+                    </a>
+                </div>
+            </div>
+
+            <div id="adminLiveMap" style="height: 380px; border-radius: 8px;" class="mb-2"></div>
+            <div class="d-flex justify-content-between align-items-center small text-secondary px-1">
+                <span><i class="fa-solid fa-circle-info text-info me-1"></i> Click any incident pin on the map to inspect telemetry details and approve or reject in real time</span>
+                <span><i class="fa-solid fa-layer-group text-primary me-1"></i> Switch between OpenStreetMap, Dark Mode, and Voyager layers</span>
+            </div>
+        </div>
+
+        <!-- Moderation Quick Review Queue Table -->
+        <div class="card-smartnav p-0 overflow-hidden mb-4">
+            <div class="card-header-smartnav d-flex justify-content-between align-items-center">
+                <span class="text-white"><i class="fa-solid fa-list-check text-warning me-2"></i>Recent Incident Feed & Verification</span>
+                <a th:href="@{/admin/reports}" class="small text-primary text-decoration-none">Manage All Reports <i class="fa-solid fa-arrow-right ms-1"></i></a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-dark table-hover mb-0 align-middle">
+                    <thead class="bg-surface text-secondary small text-uppercase">
+                        <tr>
+                            <th class="ps-4">ID</th>
+                            <th>Category</th>
+                            <th>Location / Address</th>
+                            <th>Severity</th>
+                            <th>Status</th>
+                            <th>Reporter</th>
+                            <th class="text-end pe-4">Moderation Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="r : ${recentReports}">
+                            <td class="ps-4 fw-bold text-secondary" th:text="'#' + ${r.id}">#1</td>
+                            <td>
+                                <span class="fw-bold text-white" th:text="${r.category}">ACCIDENT</span>
+                            </td>
+                            <td>
+                                <div class="text-light small text-truncate" style="max-width: 280px;" th:text="${r.address}">Address</div>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary-subtle text-light" th:text="${r.severity}">HIGH</span>
+                            </td>
+                            <td>
+                                <span class="badge" th:classappend="${r.status == 'APPROVED' ? 'badge-status-approved' : (r.status == 'PENDING' ? 'badge-status-pending' : 'badge-status-rejected')}" th:text="${r.status}">PENDING</span>
+                            </td>
+                            <td class="text-secondary small" th:text="${r.userName}">John Doe</td>
+                            <td class="text-end pe-4">
+                                <div class="btn-group btn-group-sm">
+                                    <button th:if="${r.status != 'APPROVED'}" class="btn btn-outline-success btn-approve-report" th:data-id="${r.id}" title="Approve & Publish to Map">
+                                        <i class="fa-solid fa-check"></i>
+                                    </button>
+                                    <button th:if="${r.status != 'REJECTED'}" class="btn btn-outline-warning btn-reject-report" th:data-id="${r.id}" title="Reject Report">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-delete-report" th:data-id="${r.id}" title="Delete Fake Report">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <div th:replace="~{fragments/footer :: scripts}"></div>
+    <script th:src="@{/js/map.js}"></script>
+    <script th:src="@{/js/admin.js}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            MapEngine.init('adminLiveMap', { zoom: 13, enableClickToReport: false });
+            AdminEngine.initDashboard();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: common-head('Manage Crowdsourced Reports')}">
+</head>
+<body>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="container-fluid px-lg-4 py-4">
+        <!-- Header -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+            <div>
+                <h2 class="fw-bold text-white mb-1">Manage All Incident Reports</h2>
+                <p class="text-secondary small mb-0">Approve verified alerts to live navigation, reject invalid notices, and purge fake spam.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a th:href="@{/api/reports/export/csv}" class="btn btn-secondary-smartnav">
+                    <i class="fa-solid fa-file-excel me-1 text-success"></i> Export Excel/CSV
+                </a>
+                <button id="btnExportPdf" class="btn btn-secondary-smartnav">
+                    <i class="fa-solid fa-file-pdf me-1 text-danger"></i> Print / PDF
+                </button>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="card-smartnav p-3 mb-4">
+            <div class="row g-2 align-items-center">
+                <div class="col-md-3">
+                    <input type="text" id="reportFilterSearch" class="form-control form-control-smartnav" placeholder="Search address or description...">
+                </div>
+                <div class="col-md-3">
+                    <select id="reportFilterCategory" class="form-select form-select-smartnav">
+                        <option value="">All Categories</option>
+                        <option value="ACCIDENT">Accident</option>
+                        <option value="TRAFFIC_JAM">Traffic Jam</option>
+                        <option value="ROAD_BLOCK">Road Block</option>
+                        <option value="CONSTRUCTION">Construction</option>
+                        <option value="FLOOD">Flood</option>
+                        <option value="POLICE_CHECKPOINT">Police Checkpoint</option>
+                        <option value="BROKEN_SIGNAL">Broken Signal</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select id="reportFilterStatus" class="form-select form-select-smartnav">
+                        <option value="">All Statuses</option>
+                        <option value="PENDING">Pending Review</option>
+                        <option value="APPROVED">Approved (Live)</option>
+                        <option value="REJECTED">Rejected</option>
+                    </select>
+                </div>
+                <div class="col-md-3 text-md-end">
+                    <span class="text-secondary small" th:text="${#lists.size(reports)} + ' total reports recorded'">0 total reports</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Table -->
+        <div class="card-smartnav p-0 overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-dark table-hover mb-0 align-middle" id="adminReportsTable">
+                    <thead class="bg-surface text-secondary small text-uppercase">
+                        <tr>
+                            <th class="ps-4">ID</th>
+                            <th>Category</th>
+                            <th>Location / Address</th>
+                            <th>Description</th>
+                            <th>Media</th>
+                            <th>Severity</th>
+                            <th>Status</th>
+                            <th>Reporter</th>
+                            <th>Date</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="r : ${reports}">
+                            <td class="ps-4 fw-bold text-secondary" th:text="'#' + ${r.id}">#1</td>
+                            <td>
+                                <span class="fw-bold text-white" th:text="${r.category}">ACCIDENT</span>
+                            </td>
+                            <td>
+                                <div class="text-light small text-truncate" style="max-width: 200px;" th:text="${r.address}">Address</div>
+                                <div class="text-secondary" style="font-size: 0.7rem;" th:text="${r.latitude} + ', ' + ${r.longitude}">18.52, 73.85</div>
+                            </td>
+                            <td>
+                                <div class="text-secondary small text-truncate" style="max-width: 220px;" th:text="${r.description}">Description...</div>
+                            </td>
+                            <td>
+                                <img th:if="${r.image}" th:src="${r.image}" alt="Evidence" class="rounded" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.style.display='none'">
+                                <span th:unless="${r.image}" class="text-secondary small">&mdash;</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary-subtle text-light" th:text="${r.severity}">HIGH</span>
+                            </td>
+                            <td>
+                                <span class="badge" th:classappend="${r.status == 'APPROVED' ? 'badge-status-approved' : (r.status == 'PENDING' ? 'badge-status-pending' : 'badge-status-rejected')}" th:text="${r.status}">PENDING</span>
+                            </td>
+                            <td class="text-secondary small" th:text="${r.userName}">John Doe</td>
+                            <td class="text-secondary small" th:text="${#temporals.format(r.createdAt, 'MM-dd HH:mm')}">09-27</td>
+                            <td class="text-end pe-4">
+                                <div class="btn-group btn-group-sm">
+                                    <button th:if="${r.status != 'APPROVED'}" class="btn btn-outline-success btn-approve-report" th:data-id="${r.id}" title="Approve Report">
+                                        <i class="fa-solid fa-check"></i>
+                                    </button>
+                                    <button th:if="${r.status != 'REJECTED'}" class="btn btn-outline-warning btn-reject-report" th:data-id="${r.id}" title="Reject Report">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-delete-report" th:data-id="${r.id}" title="Delete Fake Report">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <div th:replace="~{fragments/footer :: scripts}"></div>
+    <script th:src="@{/js/admin.js}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            AdminEngine.bindModerationButtons();
+
+            // Client-side quick filter
+            const searchInput = document.getElementById('reportFilterSearch');
+            const categorySelect = document.getElementById('reportFilterCategory');
+            const statusSelect = document.getElementById('reportFilterStatus');
+            const table = document.getElementById('adminReportsTable');
+
+            function applyTableFilter() {
+                const term = searchInput.value.toLowerCase();
+                const cat = categorySelect.value.toLowerCase();
+                const stat = statusSelect.value.toLowerCase();
+
+                const rows = table.querySelectorAll('tbody tr');
+                rows.forEach(row => {
+                    const text = row.innerText.toLowerCase();
+                    const matchesSearch = !term || text.includes(term);
+                    const matchesCat = !cat || text.includes(cat);
+                    const matchesStat = !stat || text.includes(stat);
+
+                    if (matchesSearch && matchesCat && matchesStat) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+
+            searchInput.addEventListener('input', applyTableFilter);
+            categorySelect.addEventListener('change', applyTableFilter);
+            statusSelect.addEventListener('change', applyTableFilter);
+        });
+    </script>
+</body>
+</html>

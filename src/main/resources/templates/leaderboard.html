@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: common-head('Contributor Leaderboard & Badges')}">
+</head>
+<body>
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="container py-5">
+        <!-- Title & Description -->
+        <div class="text-center max-w-2xl mx-auto mb-5">
+            <span class="badge bg-warning-subtle text-warning px-3 py-2 rounded-pill fw-bold mb-2">
+                <i class="fa-solid fa-trophy me-1"></i> COMMUNITY RECOGNITION
+            </span>
+            <h1 class="display-6 fw-bold text-white mb-2">Top Traffic Sentinel Leaderboard</h1>
+            <p class="text-secondary fs-5">Recognizing drivers who keep our highways and avenues safe through real-time ground observations.</p>
+        </div>
+
+        <!-- Tier Guide Cards -->
+        <div class="row g-3 mb-5">
+            <div class="col-6 col-md-3">
+                <div class="card-smartnav p-3 text-center border-secondary">
+                    <span class="badge badge-rank-bronze mx-auto mb-2">Bronze Scout</span>
+                    <div class="fs-4 fw-bold text-white">0 - 19</div>
+                    <div class="text-secondary small">Contribution Points</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card-smartnav p-3 text-center border-secondary">
+                    <span class="badge badge-rank-silver mx-auto mb-2">Silver Navigator</span>
+                    <div class="fs-4 fw-bold text-white">20 - 49</div>
+                    <div class="text-secondary small">Contribution Points</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card-smartnav p-3 text-center border-secondary">
+                    <span class="badge badge-rank-gold mx-auto mb-2">Gold Pioneer</span>
+                    <div class="fs-4 fw-bold text-white">50 - 99</div>
+                    <div class="text-secondary small">Contribution Points</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card-smartnav p-3 text-center border-secondary">
+                    <span class="badge badge-rank-platinum mx-auto mb-2">Platinum Sentinel</span>
+                    <div class="fs-4 fw-bold text-white">100+</div>
+                    <div class="text-secondary small">Contribution Points</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leaderboard Table -->
+        <div class="card-smartnav p-0 overflow-hidden">
+            <div class="card-header-smartnav d-flex justify-content-between align-items-center">
+                <span class="text-white"><i class="fa-solid fa-ranking-star text-warning me-2"></i>Global Contributor Rankings</span>
+                <span class="badge bg-secondary-subtle text-secondary small">Live Scoring</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-dark table-hover mb-0 align-middle">
+                    <thead class="bg-surface text-secondary small text-uppercase">
+                        <tr>
+                            <th class="ps-4" style="width: 80px;">Rank</th>
+                            <th>Contributor</th>
+                            <th>Tier Badge</th>
+                            <th>Submitted</th>
+                            <th>Approved</th>
+                            <th class="text-end pe-4">Total Points</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="entry, stat : ${leaderboard}">
+                            <td class="ps-4">
+                                <span th:if="${entry.rank == 1}" class="badge bg-warning text-dark fs-6 px-2 py-1"><i class="fa-solid fa-crown me-1"></i>1st</span>
+                                <span th:if="${entry.rank == 2}" class="badge bg-secondary text-white fs-6 px-2 py-1">2nd</span>
+                                <span th:if="${entry.rank == 3}" class="badge bg-danger-subtle text-warning fs-6 px-2 py-1">3rd</span>
+                                <span th:if="${entry.rank > 3}" class="fw-bold text-secondary" th:text="'#' + ${entry.rank}">#4</span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="rounded-circle bg-surface border border-secondary text-white d-flex align-items-center justify-content-center fw-bold" style="width: 34px; height: 34px; font-size: 0.85rem;" th:text="${#strings.substring(entry.userName, 0, 1)}">
+                                        J
+                                    </div>
+                                    <span class="fw-bold text-white" th:text="${entry.userName}">John Doe</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge" th:classappend="${entry.badge == 'Platinum Sentinel' ? 'badge-rank-platinum' : (entry.badge == 'Gold Pioneer' ? 'badge-rank-gold' : (entry.badge == 'Silver Navigator' ? 'badge-rank-silver' : 'badge-rank-bronze'))}" th:text="${entry.badge}">Bronze Scout</span>
+                            </td>
+                            <td class="text-secondary" th:text="${entry.reportsSubmitted}">10</td>
+                            <td class="text-success fw-semibold" th:text="${entry.reportsApproved}">8</td>
+                            <td class="text-end pe-4">
+                                <span class="fs-5 fw-bold text-primary" th:text="${entry.points}">120</span>
+                                <span class="text-secondary small"> pts</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <div th:replace="~{fragments/footer :: scripts}"></div>
+</body>
+</html>

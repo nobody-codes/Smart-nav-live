@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: common-head('Sign In | Crowdsourced Mapping')}">
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <div class="container py-5 my-auto">
+        <div class="row justify-content-center">
+            <div class="col-md-7 col-lg-5">
+                <div class="card-smartnav p-4 p-md-5">
+                    <!-- Project Branding & Title -->
+                    <div class="text-center mb-4">
+                        <img th:src="@{/images/logo.svg}" alt="SmartNav" height="42" class="mb-3">
+                        <div class="text-secondary small fw-bold text-uppercase tracking-wider mb-1" style="font-size: 0.72rem; letter-spacing: 1px;">
+                            Real-Time Crowdsourced Mapping &amp; Intelligent Navigation System
+                        </div>
+                        <h3 class="fw-bold text-white mb-1">User Sign In</h3>
+                        <p class="text-secondary small">Access live crowdsourced traffic hazards and intelligent routing</p>
+                    </div>
+
+                    <!-- Alerts & Validation Messages -->
+                    <div th:if="${param.error != null and (param.error[0] == 'bad_credentials' or param.error[0] == 'true')}" class="alert alert-danger py-2 px-3 small d-flex align-items-center gap-2 mb-3">
+                        <i class="fa-solid fa-triangle-exclamation text-danger fs-5"></i>
+                        <span>Invalid email or password.</span>
+                    </div>
+
+                    <div th:if="${param.error != null and param.error[0] == 'suspended'}" class="alert alert-danger py-2 px-3 small d-flex align-items-center gap-2 mb-3">
+                        <i class="fa-solid fa-ban text-danger fs-5"></i>
+                        <span>Your account is currently suspended. Please contact the administrator.</span>
+                    </div>
+
+                    <div th:if="${param.error != null and param.error[0] == 'disabled'}" class="alert alert-danger py-2 px-3 small d-flex align-items-center gap-2 mb-3">
+                        <i class="fa-solid fa-user-xmark text-danger fs-5"></i>
+                        <span>Your account has been disabled. Please contact the administrator.</span>
+                    </div>
+
+                    <div th:if="${param.error != null and param.error[0] == 'blocked'}" class="alert alert-danger py-2 px-3 small d-flex align-items-center gap-2 mb-3">
+                        <i class="fa-solid fa-clock-rotate-left text-danger fs-5"></i>
+                        <span>Too many failed login attempts. Account temporarily locked for 15 minutes.</span>
+                    </div>
+
+                    <div th:if="${param.error != null and param.error[0] == 'admin_required'}" class="alert alert-warning py-2 px-3 small d-flex align-items-center gap-2 mb-3">
+                        <i class="fa-solid fa-shield-halved text-warning fs-5"></i>
+                        <span>Admin access required. Please sign in through the Admin Portal.</span>
+                    </div>
+
+                    <div th:if="${param.logout}" class="alert alert-info py-2 px-3 small d-flex align-items-center gap-2 mb-3">
+                        <i class="fa-solid fa-circle-check text-info fs-5"></i>
+                        <span>Logged out successfully.</span>
+                    </div>
+
+                    <div th:if="${param.registered}" class="alert alert-success py-2 px-3 small d-flex align-items-center gap-2 mb-3">
+                        <i class="fa-solid fa-circle-check text-success fs-5"></i>
+                        <span>Registration complete! You can now log in to your account.</span>
+                    </div>
+
+                    <div th:if="${param.resetSuccess}" class="alert alert-success py-2 px-3 small d-flex align-items-center gap-2 mb-3">
+                        <i class="fa-solid fa-circle-check text-success fs-5"></i>
+                        <span>Password updated successfully! Please sign in with your new password.</span>
+                    </div>
+
+                    <!-- Professional Login Form -->
+                    <form th:action="@{/login}" method="post" id="loginForm">
+                        <div class="mb-3">
+                            <label class="form-label text-secondary small fw-bold" for="username">Email Address</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-surface border-secondary-subtle text-secondary"><i class="fa-solid fa-envelope"></i></span>
+                                <input type="email" id="username" name="username" class="form-control form-control-smartnav" required placeholder="name@example.com" autocomplete="username">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label class="form-label text-secondary small fw-bold mb-0" for="password">Password</label>
+                                <a th:href="@{/forgot-password}" class="small text-primary text-decoration-none">Forgot Password?</a>
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-text bg-surface border-secondary-subtle text-secondary"><i class="fa-solid fa-lock"></i></span>
+                                <input type="password" id="password" name="password" class="form-control form-control-smartnav" required placeholder="••••••••" autocomplete="current-password">
+                                <button type="button" class="btn btn-secondary-smartnav px-3" id="togglePasswordBtn" title="Show/Hide password">
+                                    <i class="fa-regular fa-eye" id="togglePasswordIcon"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mb-4 form-check d-flex align-items-center justify-content-between">
+                            <div>
+                                <input type="checkbox" class="form-check-input" id="rememberMe" name="rememberMe">
+                                <label class="form-check-label text-secondary small" for="rememberMe">Remember Me</label>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="btnLoginSubmit" class="btn btn-primary-smartnav w-100 py-2 mb-3 fw-bold">
+                            <i class="fa-solid fa-arrow-right-to-bracket me-2"></i> Log In
+                        </button>
+                    </form>
+
+                    <!-- Evaluation Quick Fill Panel -->
+                    <div class="p-3 rounded bg-surface border border-secondary-subtle mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small fw-bold text-secondary text-uppercase" style="font-size: 0.7rem;">Quick Demo Fill (Evaluator)</span>
+                            <i class="fa-solid fa-wand-magic-sparkles text-warning small"></i>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-info w-100" onclick="fillCredentials('john.doe@smartnav.com', 'user123')">
+                                <i class="fa-solid fa-user me-1"></i> User
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-warning w-100" onclick="fillCredentials('admin@smartnav.com', 'admin123')">
+                                <i class="fa-solid fa-shield-halved me-1"></i> Admin
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-light w-100" onclick="fillCredentials('guest@smartnav.com', 'guest123')">
+                                <i class="fa-solid fa-eye me-1"></i> Guest
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Footer Links: Registration & Admin Portal -->
+                    <div class="text-center text-secondary small pt-2 border-top border-secondary-subtle">
+                        <div class="mb-2">
+                            Don't have an account? 
+                            <a th:href="@{/register}" class="text-primary fw-semibold text-decoration-none">Create Account</a>
+                        </div>
+                        <div>
+                            Are you a system operator? 
+                            <a th:href="@{/admin/login}" class="text-warning fw-semibold text-decoration-none">
+                                <i class="fa-solid fa-shield-halved me-1"></i>Administrator Login
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <div th:replace="~{fragments/footer :: scripts}"></div>
+
+    <script>
+        // Password Visibility Toggle
+        const togglePasswordBtn = document.getElementById('togglePasswordBtn');
+        const passwordInput = document.getElementById('password');
+        const toggleIcon = document.getElementById('togglePasswordIcon');
+
+        if (togglePasswordBtn && passwordInput) {
+            togglePasswordBtn.addEventListener('click', () => {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                toggleIcon.className = type === 'password' ? 'fa-regular fa-eye' : 'fa-regular fa-eye-slash text-primary';
+            });
+        }
+
+        // Form Submit Loading State
+        const loginForm = document.getElementById('loginForm');
+        const btnLoginSubmit = document.getElementById('btnLoginSubmit');
+        if (loginForm && btnLoginSubmit) {
+            loginForm.addEventListener('submit', () => {
+                btnLoginSubmit.disabled = true;
+                btnLoginSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Signing in...';
+            });
+        }
+
+        function fillCredentials(email, pass) {
+            const emailInput = document.getElementById('username');
+            const passInput = document.getElementById('password');
+            if (emailInput && passInput) {
+                emailInput.value = email;
+                passInput.value = pass;
+            }
+        }
+    </script>
+</body>
+</html>
