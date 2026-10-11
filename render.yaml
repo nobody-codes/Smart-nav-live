@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: smart-nav-live
+    env: docker
+    plan: free
+    region: singapore
+    branch: main
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: SPRING_PROFILES_ACTIVE
+        value: dev
